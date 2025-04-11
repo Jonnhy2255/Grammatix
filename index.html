@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -267,6 +266,16 @@
       color: #333;
     }
     
+    .subject {
+      border: 2px solid #fff;
+      padding: 0.15rem 0.45rem;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    .object {
+      border-bottom: 2px dashed #fff;
+    }
+    
     /* Tooltip */
     .tooltip {
       position: relative;
@@ -346,10 +355,58 @@
       gap: 0.4rem;
     }
     
+    /* Sentence structure */
+    .sentence-structure {
+      background-color: var(--card-bg);
+      border-radius: 0.6rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 1px solid var(--border-color);
+    }
+    
+    .structure-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      color: var(--primary-color);
+      margin-bottom: 0.75rem;
+    }
+    
+    .structure-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .structure-label {
+      width: 100px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .structure-value {
+      flex-grow: 1;
+      font-size: 0.9rem;
+    }
+    
     /* Input area */
     .input-container {
       position: relative;
       margin-top: auto;
+    }
+    
+    .input-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      border-radius: 16px;
+      z-index: -1;
+    }
+    
+    .input-container:focus-within .input-glow {
+      box-shadow: 0 0 20px var(--primary-glow);
     }
     
     .chat-input {
@@ -368,22 +425,6 @@
     .chat-input:focus {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px var(--primary-glow);
-    }
-    
-    /* Glow effect for the input */
-    .input-glow {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      border-radius: 16px;
-      z-index: -1;
-    }
-    
-    .input-container:focus-within .input-glow {
-      box-shadow: 0 0 20px var(--primary-glow);
     }
     
     .send-button {
@@ -443,49 +484,6 @@
     @keyframes typingBounce {
       0%, 60%, 100% { transform: translateY(0); }
       30% { transform: translateY(-5px); }
-    }
-    
-    /* Loader */
-    .loader {
-      display: inline-block;
-      position: relative;
-      width: 50px;
-      height: 15px;
-    }
-    
-    .loader-dot {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: var(--primary-color);
-      animation: loader-dot 1.2s ease-in-out infinite;
-    }
-    
-    .loader-dot:nth-child(1) {
-      left: 0;
-      animation-delay: 0s;
-    }
-    
-    .loader-dot:nth-child(2) {
-      left: 20px;
-      animation-delay: 0.2s;
-    }
-    
-    .loader-dot:nth-child(3) {
-      left: 40px;
-      animation-delay: 0.4s;
-    }
-    
-    @keyframes loader-dot {
-      0%, 100% { 
-        transform: scale(0.5);
-        opacity: 0.3;
-      }
-      50% { 
-        transform: scale(1.2);
-        opacity: 1;
-      }
     }
     
     /* Futuristic scanner lines effect */
@@ -620,288 +618,467 @@
       interjection: "Interjection"
     };
     
-    // Grammaire française : Base de données linguistique
-    const frenchGrammar = {
-      // MOTS INVARIABLES
+    // Base de données linguistique française (lexique et règles)
+    const frenchLexicon = {
+      // Articles définis
+      definiteArticles: {
+        singular: ["le", "la", "l'"],
+        plural: ["les"]
+      },
+      
+      // Articles indéfinis
+      indefiniteArticles: {
+        singular: ["un", "une"],
+        plural: ["des"]
+      },
+      
+      // Articles partitifs
+      partitiveArticles: ["du", "de la", "de l'", "des"],
+      
+      // Déterminants possessifs
+      possessiveDeterminers: [
+        "mon", "ma", "mes", 
+        "ton", "ta", "tes", 
+        "son", "sa", "ses", 
+        "notre", "nos", 
+        "votre", "vos", 
+        "leur", "leurs"
+      ],
+      
+      // Déterminants démonstratifs
+      demonstrativeDeterminers: ["ce", "cet", "cette", "ces"],
+      
+      // Déterminants indéfinis
+      indefiniteDeterminers: [
+        "chaque", "quelque", "quelques", "tout", "toute", "tous", "toutes",
+        "certain", "certaine", "certains", "certaines", "plusieurs", 
+        "aucun", "aucune", "nul", "nulle", "autre", "autres",
+        "même", "mêmes", "tel", "telle", "tels", "telles"
+      ],
+      
+      // Pronoms personnels
+      personalPronouns: {
+        subject: ["je", "j'", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles"],
+        object: ["me", "m'", "te", "t'", "le", "l'", "la", "lui", "se", "s'", "nous", "vous", "les", "leur"],
+        tonic: ["moi", "toi", "lui", "elle", "soi", "nous", "vous", "eux", "elles"],
+        reflexive: ["me", "m'", "te", "t'", "se", "s'", "nous", "vous"],
+        adverbial: ["y", "en"]
+      },
+      
+      // Pronoms démonstratifs
+      demonstrativePronouns: ["ce", "c'", "ça", "ceci", "cela", "celui", "celle", "ceux", "celles", "celui-ci", "celle-ci", "ceux-ci", "celles-ci"],
+      
+      // Pronoms relatifs
+      relativePronouns: ["qui", "que", "qu'", "quoi", "dont", "où", "lequel", "laquelle", "lesquels", "lesquelles"],
+      
+      // Pronoms interrogatifs
+      interrogativePronouns: ["qui", "que", "quoi", "lequel", "laquelle", "lesquels", "lesquelles"],
+      
+      // Pronoms indéfinis
+      indefinitePronouns: ["on", "tout", "tous", "toute", "toutes", "aucun", "aucune", "nul", "nulle", "personne", "rien", "chacun", "chacune", "quelqu'un", "quelques-uns", "quelques-unes", "plusieurs", "certains", "certaines", "autre", "autres"],
+      
+      // Prépositions
       prepositions: [
-        "à", "après", "avant", "avec", "chez", "contre", "dans", "de", "depuis", 
-        "derrière", "dès", "devant", "durant", "en", "entre", "envers", "hormis", 
-        "hors", "jusque", "malgré", "outre", "par", "parmi", "pendant", "pour", 
-        "près", "sans", "sauf", "selon", "sous", "suivant", "sur", "vers", "via"
+        "à", "au", "aux", "après", "avant", "avec", "chez", "contre", "dans", 
+        "de", "des", "du", "depuis", "derrière", "dès", "devant", "durant", 
+        "en", "entre", "envers", "hormis", "hors", "jusque", "malgré", "outre", 
+        "par", "parmi", "pendant", "pour", "près", "sans", "sauf", "selon", 
+        "sous", "suivant", "sur", "vers", "via"
       ],
       
-      conjunctions: {
-        coordination: ["et", "mais", "ou", "donc", "or", "ni", "car"],
-        subordination: ["que", "quand", "comme", "si", "lorsque", "puisque", "quoique", "parce", "afin", "bien"]
-      },
+      // Conjonctions de coordination
+      coordinatingConjunctions: ["et", "mais", "ou", "donc", "or", "ni", "car"],
       
-      adverbs: [
-        "ainsi", "alors", "assez", "aujourd'hui", "aussi", "autant", "autrefois", "beaucoup",
-        "bien", "bientôt", "certes", "combien", "comment", "davantage", "debout", "dedans",
-        "dehors", "déjà", "demain", "encore", "enfin", "ensemble", "ensuite", "environ",
-        "fort", "hier", "ici", "jamais", "là", "loin", "longtemps", "lors", "maintenant",
-        "mal", "mieux", "moins", "parfois", "partout", "peu", "plus", "plusieurs", "plutôt",
-        "presque", "puis", "quasiment", "quelquefois", "seulement", "si", "souvent", "tant",
-        "tantôt", "tard", "tellement", "tôt", "toujours", "toutefois", "très", "trop", "vite"
+      // Conjonctions de subordination
+      subordinatingConjunctions: [
+        "que", "qu'", "quand", "comme", "si", "lorsque", "puisque", "quoique", 
+        "parce", "bien que", "afin que", "pour que", "tandis que", "alors que"
       ],
       
-      negations: ["ne", "n'", "pas", "plus", "jamais", "guère", "point", "nullement", "aucunement"],
+      // Adverbes courants
+      commonAdverbs: [
+        "ainsi", "alors", "assez", "aujourd'hui", "aussi", "autant", "autrefois", 
+        "beaucoup", "bien", "bientôt", "certes", "combien", "comment", "davantage", 
+        "debout", "dedans", "dehors", "déjà", "demain", "encore", "enfin", "ensemble", 
+        "ensuite", "environ", "fort", "hier", "ici", "jamais", "là", "loin", 
+        "longtemps", "lors", "maintenant", "mal", "mieux", "moins", "parfois", 
+        "partout", "peu", "plus", "plusieurs", "plutôt", "presque", "puis", 
+        "quasiment", "quelquefois", "seulement", "si", "souvent", "tant", 
+        "tantôt", "tard", "tellement", "tôt", "toujours", "toutefois", "très", 
+        "trop", "vite", "volontiers", "vraiment"
+      ],
       
-      // PRONOMS
-      pronouns: {
-        personal: ["je", "j'", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", 
-                 "me", "m'", "te", "t'", "se", "s'", "le", "l'", "la", "les", "lui", "leur", 
-                 "moi", "toi", "soi", "eux", "y", "en"],
-        
-        relative: ["qui", "que", "qu'", "quoi", "dont", "où", "lequel", "laquelle", "lesquels", 
-                 "lesquelles", "auquel", "auxquels", "auxquelles", "duquel", "desquels", "desquelles"],
-        
-        demonstrative: ["ce", "c'", "ça", "ceci", "cela", "celui", "celle", "ceux", "celles", 
-                       "celui-ci", "celle-ci", "ceux-ci", "celles-ci"],
-        
-        possessive: ["le mien", "la mienne", "les miens", "les miennes", "le tien", "la tienne", 
-                    "les tiens", "les tiennes", "le sien", "la sienne", "les siens", "les siennes", 
-                    "le nôtre", "la nôtre", "les nôtres", "le vôtre", "la vôtre", "les vôtres", 
-                    "le leur", "la leur", "les leurs"],
-        
-        indefinite: ["aucun", "aucune", "autre", "certains", "certaines", "chacun", "chacune", 
-                    "nul", "nulle", "on", "personne", "plusieurs", "quelqu'un", "quelques-uns", 
-                    "quelques-unes", "quelque chose", "quiconque", "rien", "tel", "telle", "tout", 
-                    "toute", "tous", "toutes"]
-      },
+      // Mots de négation
+      negationWords: ["ne", "n'", "pas", "plus", "jamais", "guère", "point", "nullement", "aucunement"],
       
-      // NOMS COMMUNS (une liste basique pour aider à l'identification)
-      nouns: {
-        common: [
-          "homme", "femme", "enfant", "personne", "gens", "temps", "chose", "année", "jour", "fois",
-          "vie", "moment", "heure", "monde", "façon", "côté", "main", "œil", "pied", "tête",
-          "corps", "cœur", "esprit", "idée", "mot", "question", "raison", "problème", "fait", "cas",
-          "pays", "ville", "maison", "rue", "place", "table", "chambre", "bureau", "porte", "fenêtre",
-          "voiture", "train", "avion", "bateau", "vélo", "route", "chemin", "voyage", "travail", "école",
-          "livre", "histoire", "image", "film", "musique", "chanson", "jeu", "sport", "argent", "prix",
-          "eau", "terre", "air", "feu", "soleil", "lune", "étoile", "ciel", "mer", "montagne",
-          "arbre", "fleur", "animal", "chien", "chat", "oiseau", "poisson", "ami", "famille", "parent",
-          "père", "mère", "frère", "sœur", "fils", "fille", "nom", "prénom", "regard", "sourire",
-          "couleur", "lumière", "bruit", "silence", "goût", "odeur", "toucher", "sentiment", "amour", "bonheur",
-          "joie", "plaisir", "peine", "douleur", "colère", "peur", "rêve", "sommeil", "nuit", "matin",
-          "journée", "soir", "semaine", "mois", "saison", "printemps", "été", "automne", "hiver", "exemple",
-          "nombre", "moitié", "partie", "début", "fin", "suite", "sens", "avis", "besoin", "envie",
-          "droit", "loi", "gouvernement", "président", "ministre", "pouvoir", "guerre", "paix", "liberté", "vérité",
-          "cours", "classe", "élève", "étudiant", "professeur", "docteur", "médecin", "client", "patron", "geste",
-          "action", "solution", "attention", "intérêt", "choix", "décision", "réponse", "situation", "expérience", "recherche"
-        ]
-      },
+      // Interjections
+      interjections: ["ah", "oh", "eh", "hé", "aïe", "ouf", "hein", "bah", "pff", "zut", "youpi", "bravo", "hourra"],
       
-      // DÉTERMINANTS
-      determiners: {
-        articles: {
-          definite: ["le", "la", "l'", "les"],
-          indefinite: ["un", "une", "des"],
-          partitive: ["du", "de la", "de l'", "des"]
-        },
-        
-        possessive: ["mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses", 
-                    "notre", "nos", "votre", "vos", "leur", "leurs"],
-        
-        demonstrative: ["ce", "cet", "cette", "ces"],
-        
-        interrogative: ["quel", "quels", "quelle", "quelles"],
-        
-        indefinite: ["aucun", "aucune", "autre", "autres", "certain", "certains", "certaine", 
-                    "certaines", "chaque", "différents", "différentes", "divers", "diverses", 
-                    "maint", "mainte", "maints", "maintes", "même", "mêmes", "nul", "nulle", "plusieurs", 
-                    "quelque", "quelques", "tel", "tels", "telle", "telles", "tout", "tous", "toute", "toutes"]
-      },
-      
-      // VERBES
-      verbs: {
-        // Auxiliaires complets avec toutes leurs formes
-        auxiliaries: {
-          avoir: {
-            infinitif: "avoir",
-            participePresent: "ayant",
-            participePassé: ["eu", "eue", "eus", "eues"],
-            indicatifPresent: ["ai", "as", "a", "avons", "avez", "ont"],
-            indicatifImparfait: ["avais", "avais", "avait", "avions", "aviez", "avaient"],
-            indicatifPasseSimple: ["eus", "eus", "eut", "eûmes", "eûtes", "eurent"],
-            indicatifFuturSimple: ["aurai", "auras", "aura", "aurons", "aurez", "auront"],
-            conditionnelPresent: ["aurais", "aurais", "aurait", "aurions", "auriez", "auraient"],
-            subjonctifPresent: ["aie", "aies", "ait", "ayons", "ayez", "aient"],
-            subjonctifImparfait: ["eusse", "eusses", "eût", "eussions", "eussiez", "eussent"],
-            imperatifPresent: ["aie", "ayons", "ayez"]
+      // Verbes auxiliaires
+      auxiliaryVerbs: {
+        avoir: {
+          infinitive: "avoir",
+          presentParticiple: "ayant",
+          pastParticiple: ["eu", "eue", "eus", "eues"],
+          present: {
+            singular: ["ai", "as", "a"],
+            plural: ["avons", "avez", "ont"]
           },
-          
-          être: {
-            infinitif: "être",
-            participePresent: "étant",
-            participePassé: ["été"],
-            indicatifPresent: ["suis", "es", "est", "sommes", "êtes", "sont"],
-            indicatifImparfait: ["étais", "étais", "était", "étions", "étiez", "étaient"],
-            indicatifPasseSimple: ["fus", "fus", "fut", "fûmes", "fûtes", "furent"],
-            indicatifFuturSimple: ["serai", "seras", "sera", "serons", "serez", "seront"],
-            conditionnelPresent: ["serais", "serais", "serait", "serions", "seriez", "seraient"],
-            subjonctifPresent: ["sois", "sois", "soit", "soyons", "soyez", "soient"],
-            subjonctifImparfait: ["fusse", "fusses", "fût", "fussions", "fussiez", "fussent"],
-            imperatifPresent: ["sois", "soyons", "soyez"]
+          imperfect: {
+            singular: ["avais", "avais", "avait"],
+            plural: ["avions", "aviez", "avaient"]
+          },
+          future: {
+            singular: ["aurai", "auras", "aura"],
+            plural: ["aurons", "aurez", "auront"]
           }
         },
-        
-        // Verbes fréquents
-        common: {
-          aller: {
-            infinitif: "aller",
-            participePresent: "allant",
-            participePassé: ["allé", "allée", "allés", "allées"],
-            indicatifPresent: ["vais", "vas", "va", "allons", "allez", "vont"],
-            indicatifImparfait: ["allais", "allais", "allait", "allions", "alliez", "allaient"]
+        être: {
+          infinitive: "être",
+          presentParticiple: "étant",
+          pastParticiple: ["été"],
+          present: {
+            singular: ["suis", "es", "est"],
+            plural: ["sommes", "êtes", "sont"]
           },
-          
-          faire: {
-            infinitif: "faire",
-            participePresent: "faisant",
-            participePassé: ["fait", "faite", "faits", "faites"],
-            indicatifPresent: ["fais", "fais", "fait", "faisons", "faites", "font"],
-            indicatifImparfait: ["faisais", "faisais", "faisait", "faisions", "faisiez", "faisaient"]
+          imperfect: {
+            singular: ["étais", "étais", "était"],
+            plural: ["étions", "étiez", "étaient"]
           },
-          
-          voir: {
-            infinitif: "voir",
-            participePresent: "voyant",
-            participePassé: ["vu", "vue", "vus", "vues"],
-            indicatifPresent: ["vois", "vois", "voit", "voyons", "voyez", "voient"],
-            indicatifImparfait: ["voyais", "voyais", "voyait", "voyions", "voyiez", "voyaient"]
-          },
-          
-          // Ajout de verbes fréquents pour améliorer la détection
-          oser: {
-            infinitif: "oser",
-            participePresent: "osant",
-            indicatifPresent: ["ose", "oses", "ose", "osons", "osez", "osent"]
-          },
-          
-          viser: {
-            infinitif: "viser",
-            participePresent: "visant",
-            indicatifPresent: ["vise", "vises", "vise", "visons", "visez", "visent"]
-          },
-          
-          prendre: {
-            infinitif: "prendre",
-            participePresent: "prenant",
-            indicatifPresent: ["prends", "prends", "prend", "prenons", "prenez", "prennent"]
-          },
-          
-          pouvoir: {
-            infinitif: "pouvoir",
-            participePresent: "pouvant",
-            indicatifPresent: ["peux", "peux", "peut", "pouvons", "pouvez", "peuvent"]
-          },
-          
-          vouloir: {
-            infinitif: "vouloir",
-            participePresent: "voulant",
-            indicatifPresent: ["veux", "veux", "veut", "voulons", "voulez", "veulent"]
-          },
-          
-          savoir: {
-            infinitif: "savoir",
-            participePresent: "sachant",
-            indicatifPresent: ["sais", "sais", "sait", "savons", "savez", "savent"]
-          },
-          
-          dire: {
-            infinitif: "dire",
-            participePresent: "disant",
-            indicatifPresent: ["dis", "dis", "dit", "disons", "dites", "disent"]
-          },
-          
-          partir: {
-            infinitif: "partir",
-            participePresent: "partant",
-            indicatifPresent: ["pars", "pars", "part", "partons", "partez", "partent"]
-          },
-          
-          venir: {
-            infinitif: "venir",
-            participePresent: "venant",
-            indicatifPresent: ["viens", "viens", "vient", "venons", "venez", "viennent"]
-          },
-          
-          devoir: {
-            infinitif: "devoir",
-            participePresent: "devant",
-            indicatifPresent: ["dois", "dois", "doit", "devons", "devez", "doivent"]
-          },
-          
-          apprécier: {
-            infinitif: "apprécier",
-            participePresent: "appréciant",
-            indicatifPresent: ["apprécie", "apprécies", "apprécie", "apprécions", "appréciez", "apprécient"]
+          future: {
+            singular: ["serai", "seras", "sera"],
+            plural: ["serons", "serez", "seront"]
           }
         }
       },
       
-      // TERMINAISONS VERBALES pour l'analyse morphologique
-      verbEndings: {
-        // Terminaisons 1er groupe (-er) - présent de l'indicatif
-        firstGroup: {
-          indicatifPresent: ["e", "es", "e", "ons", "ez", "ent"]
+      // Dictionnaire de verbes (exemples)
+      verbs: {
+        // Premier groupe (-er)
+        "aimer": {
+          infinitive: "aimer",
+          group: 1,
+          present: {
+            singular: ["aime", "aimes", "aime"],
+            plural: ["aimons", "aimez", "aiment"]
+          }
+        },
+        "parler": {
+          infinitive: "parler",
+          group: 1,
+          present: {
+            singular: ["parle", "parles", "parle"],
+            plural: ["parlons", "parlez", "parlent"]
+          }
+        },
+        "donner": {
+          infinitive: "donner",
+          group: 1,
+          present: {
+            singular: ["donne", "donnes", "donne"],
+            plural: ["donnons", "donnez", "donnent"]
+          }
+        },
+        "trouver": {
+          infinitive: "trouver",
+          group: 1,
+          present: {
+            singular: ["trouve", "trouves", "trouve"],
+            plural: ["trouvons", "trouvez", "trouvent"]
+          }
+        },
+        "regarder": {
+          infinitive: "regarder",
+          group: 1,
+          present: {
+            singular: ["regarde", "regardes", "regarde"],
+            plural: ["regardons", "regardez", "regardent"]
+          }
+        },
+        "manger": {
+          infinitive: "manger",
+          group: 1,
+          present: {
+            singular: ["mange", "manges", "mange"],
+            plural: ["mangeons", "mangez", "mangent"]
+          }
         },
         
-        // Terminaisons 2ème groupe (-ir) - présent de l'indicatif
-        secondGroup: {
-          indicatifPresent: ["is", "is", "it", "issons", "issez", "issent"]
+        // Deuxième groupe (-ir)
+        "finir": {
+          infinitive: "finir",
+          group: 2,
+          present: {
+            singular: ["finis", "finis", "finit"],
+            plural: ["finissons", "finissez", "finissent"]
+          }
+        },
+        "choisir": {
+          infinitive: "choisir",
+          group: 2,
+          present: {
+            singular: ["choisis", "choisis", "choisit"],
+            plural: ["choisissons", "choisissez", "choisissent"]
+          }
         },
         
-        // Terminaisons 3ème groupe - présent de l'indicatif (diverses)
-        thirdGroup: {
-          indicatifPresent: ["s", "s", "t", "ons", "ez", "ent", 
-                             "ds", "ds", "d", "dons", "dez", "dent",
-                             "x", "x", "t", "ons", "ez", "ent"]
+        // Troisième groupe (irréguliers)
+        "faire": {
+          infinitive: "faire",
+          group: 3,
+          present: {
+            singular: ["fais", "fais", "fait"],
+            plural: ["faisons", "faites", "font"]
+          }
+        },
+        "dire": {
+          infinitive: "dire",
+          group: 3,
+          present: {
+            singular: ["dis", "dis", "dit"],
+            plural: ["disons", "dites", "disent"]
+          }
+        },
+        "venir": {
+          infinitive: "venir",
+          group: 3,
+          present: {
+            singular: ["viens", "viens", "vient"],
+            plural: ["venons", "venez", "viennent"]
+          }
+        },
+        "voir": {
+          infinitive: "voir",
+          group: 3,
+          present: {
+            singular: ["vois", "vois", "voit"],
+            plural: ["voyons", "voyez", "voient"]
+          }
+        },
+        "prendre": {
+          infinitive: "prendre",
+          group: 3,
+          present: {
+            singular: ["prends", "prends", "prend"],
+            plural: ["prenons", "prenez", "prennent"]
+          }
+        },
+        "aller": {
+          infinitive: "aller",
+          group: 3,
+          present: {
+            singular: ["vais", "vas", "va"],
+            plural: ["allons", "allez", "vont"]
+          }
         },
         
-        // Terminaisons participiales
-        participePresent: ["ant"],
-        participePassePremierGroupe: ["é", "ée", "és", "ées"]
+        // Verbes pronominaux
+        "s'amuser": {
+          infinitive: "s'amuser",
+          group: 1,
+          pronominal: true,
+          present: {
+            singular: ["m'amuse", "t'amuses", "s'amuse"],
+            plural: ["nous amusons", "vous amusez", "s'amusent"]
+          },
+          // Formes détaillées pour l'analyse
+          presentComponents: {
+            singular: [
+              { pronoun: "me", verb: "amuse" },
+              { pronoun: "te", verb: "amuses" },
+              { pronoun: "se", verb: "amuse" }
+            ],
+            plural: [
+              { pronoun: "nous", verb: "amusons" },
+              { pronoun: "vous", verb: "amusez" },
+              { pronoun: "se", verb: "amusent" }
+            ]
+          }
+        },
+        "se lever": {
+          infinitive: "se lever",
+          group: 1,
+          pronominal: true,
+          present: {
+            singular: ["me lève", "te lèves", "se lève"],
+            plural: ["nous levons", "vous levez", "se lèvent"]
+          },
+          presentComponents: {
+            singular: [
+              { pronoun: "me", verb: "lève" },
+              { pronoun: "te", verb: "lèves" },
+              { pronoun: "se", verb: "lève" }
+            ],
+            plural: [
+              { pronoun: "nous", verb: "levons" },
+              { pronoun: "vous", verb: "levez" },
+              { pronoun: "se", verb: "lèvent" }
+            ]
+          }
+        }
       },
       
-      // TERMINAISONS ADJECTIVALES - pour identification morphologique des adjectifs
-      adjectiveEndings: {
-        // Terminaisons masculines
-        masculine: [
-          // Terminaisons simples
-          "able", "ible", "al", "el", "esque", "eux", "iste", "if", "ant", "ent",
-          // Terminaisons composées pour nationalités et origines
-          "ais", "ien", "ain", "ard", "ois", "ique", "in", "ien", "an", "ique", "ard", "erbe",
-          // Adjectifs de couleur
-          "blanc", "bleu", "rouge", "vert", "jaune", "noir", "gris", "brun", "mauve", "rose"
-        ],
+      // Terminaisons verbales par groupe
+      verbEndings: {
+        // Présent de l'indicatif
+        indicativePresent: {
+          firstGroup: {  // -er
+            singular: ["e", "es", "e"],
+            plural: ["ons", "ez", "ent"]
+          },
+          secondGroup: {  // -ir
+            singular: ["is", "is", "it"],
+            plural: ["issons", "issez", "issent"]
+          },
+          thirdGroup: {  // diverses, générales
+            singular: ["s", "s", "t/d"],
+            plural: ["ons", "ez", "ent"]
+          }
+        }
+      },
+      
+      // Adjectifs communs
+      commonAdjectives: [
+        // Adjectifs de base
+        "petit", "petite", "petits", "petites",
+        "grand", "grande", "grands", "grandes",
+        "beau", "belle", "beaux", "belles",
+        "nouveau", "nouvelle", "nouveaux", "nouvelles",
+        "vieux", "vieille", "vieux", "vieilles",
+        "bon", "bonne", "bons", "bonnes",
+        "mauvais", "mauvaise", "mauvais", "mauvaises",
+        "joli", "jolie", "jolis", "jolies",
+        "gros", "grosse", "gros", "grosses",
         
-        // Terminaisons féminines
-        feminine: [
-          "able", "ible", "ale", "elle", "esque", "euse", "iste", "ive", "ante", "ente",
-          "aise", "ienne", "aine", "arde", "oise", "ique", "ine", "ienne", "ane", "ique", "arde", "erbe",
-          "blanche", "bleue", "rouge", "verte", "jaune", "noire", "grise", "brune", "mauve", "rose"
-        ],
+        // Adjectifs de couleur
+        "blanc", "blanche", "blancs", "blanches",
+        "noir", "noire", "noirs", "noires",
+        "bleu", "bleue", "bleus", "bleues",
+        "rouge", "rouges",
+        "vert", "verte", "verts", "vertes",
+        "jaune", "jaunes",
+        "orange",
+        "rose", "roses",
+        "violet", "violette", "violets", "violettes",
+        "gris", "grise", "gris", "grises",
+        "marron",
+        "brun", "brune", "bruns", "brunes"
+      ],
+      
+      // Noms communs fréquents (liste partielle)
+      commonNouns: [
+        // Personnes
+        "homme", "femme", "enfant", "garçon", "fille", "bébé", "adulte", 
+        "ami", "amie", "amis", "amies", "famille", "mère", "père", "parent", "parents",
+        "frère", "sœur", "fils", "fille", "oncle", "tante", "cousin", "cousine",
+        "grand-père", "grand-mère", "grands-parents", "voisin", "voisine",
         
-        // Terminaisons plurielles
-        plural: [
-          "ables", "ibles", "als", "aux", "els", "esques", "eux", "istes", "ifs", "ives", 
-          "ants", "ents", "antes", "entes",
-          "ais", "iens", "ains", "ards", "ois", "iques", "ins", "iens", "ans", "iques", "ards", "erbes",
-          "blancs", "bleus", "rouges", "verts", "jaunes", "noirs", "gris", "bruns", "mauves", "roses"
-        ]
+        // Objets
+        "chose", "objet", "livre", "table", "chaise", "porte", "fenêtre", "lit",
+        "stylo", "crayon", "papier", "journal", "magazine", "téléphone", "ordinateur",
+        "voiture", "vélo", "train", "avion", "bateau", "bus", "métro",
+        
+        // Aliments (ajoutés pour l'exemple "Une pomme est mangée par elle")
+        "pomme", "pommes", "fruit", "fruits", "légume", "légumes", "pain", "eau",
+        
+        // Lieux
+        "maison", "appartement", "bureau", "école", "université", "entreprise",
+        "magasin", "restaurant", "hôtel", "hôpital", "ville", "pays", "rue", "route",
+        "place", "parc", "jardin", "forêt", "montagne", "plage", "mer", "océan", "rivière",
+        
+        // Concepts
+        "temps", "heure", "minute", "seconde", "jour", "nuit", "matin", "soir",
+        "semaine", "mois", "année", "siècle", "moment", "vie", "mort", "idée",
+        "pensée", "sentiment", "émotion", "amour", "haine", "joie", "tristesse",
+        "peur", "courage", "espoir", "rêve", "vérité", "mensonge", "problème", "solution",
+        
+        // Ajout spécifique pour les tests
+        "enfants"
+      ],
+      
+      // Indicateurs de voix passive
+      passiveVoiceIndicators: [
+        "est", "sont", "fut", "furent", 
+        "était", "étaient", "sera", "seront",
+        "a été", "ont été", "avait été", "avaient été"
+      ],
+      
+      // Prépositions introduisant un complément d'agent
+      agentPrepositions: ["par", "de"]
+    };
+    
+    // Motifs grammaticaux (pour l'analyse en contexte)
+    const grammarPatterns = {
+      // Structure: déterminant + nom
+      determinerNoun: {
+        match: ["determiner", "noun"],
+        example: "le chat"
+      },
+      
+      // Structure: déterminant + adjectif + nom
+      determinerAdjectiveNoun: {
+        match: ["determiner", "adjective", "noun"],
+        example: "la grande maison"
+      },
+      
+      // Structure: déterminant + nom + adjectif
+      determinerNounAdjective: {
+        match: ["determiner", "noun", "adjective"],
+        example: "le chat noir"
+      },
+      
+      // Structure: pronom personnel sujet + verbe
+      personalPronounVerb: {
+        match: ["personal_pronoun_subject", "verb"],
+        example: "je mange"
+      },
+      
+      // Structure: verbe pronominal (pronom réfléchi + verbe)
+      reflexivePronounVerb: {
+        match: ["reflexive_pronoun", "verb"],
+        example: "se laver"
+      },
+      
+      // Structure: sujet + verbe
+      subjectVerb: {
+        match: ["noun|personal_pronoun_subject", "verb"],
+        example: "l'enfant joue"
+      },
+      
+      // Structure: verbe + complément d'objet direct
+      verbDirectObject: {
+        match: ["verb", "determiner", "noun"],
+        example: "mange une pomme"
+      },
+      
+      // Structure: voix passive
+      passiveVoice: {
+        match: ["determiner", "noun", "auxiliary", "pastParticiple", "preposition", "noun|pronoun"],
+        example: "la pomme est mangée par lui"
+      },
+      
+      // Structure simplifiée pour la voix passive
+      simplePassiveVoice: {
+        match: ["noun|pronoun", "auxiliary", "pastParticiple"],
+        example: "le livre est lu"
       }
     };
     
-    // Fonction pour tokeniser et normaliser le texte
+    // Fonction pour tokeniser le texte
     function tokenizeText(text) {
       const tokens = [];
       
-      // Prétraitement pour garantir des espaces autour des apostrophes
+      // Prétraiter le texte pour gérer les élisions (mettre des espaces autour des apostrophes)
       let processedText = text.replace(/([a-zA-ZÀ-ÿ])'([a-zA-ZÀ-ÿ])/g, "$1' $2");
       
-      // Diviser le texte par espaces et ponctuation
+      // Prétraiter pour gérer les expressions composées (comme "parce que")
+      const compoundExpressions = [
+        "parce que", "bien que", "afin que", "pour que", "tandis que", "alors que",
+        "il y a", "est-ce que", "c'est-à-dire", "d'après", "tout à fait", 
+        "au-dessus", "au-dessous", "au lieu de", "en train de"
+      ];
+      
+      // Découper le texte en tokens (mots et ponctuations)
       const rawTokens = processedText.match(/[a-zA-ZÀ-ÿ'']+|[.,!?;:()]/g) || [];
       
       // Traiter chaque token
@@ -916,40 +1093,72 @@
           tokens.push({ 
             original: token, 
             normalized: token, 
-            type: "punctuation" 
+            type: "punctuation",
+            position: tokens.length
           });
           continue;
         }
         
         // Traiter les élisions (j', l', etc.)
         if (token.endsWith("'")) {
-          // Déterminer le type d'élision
-          let normalizedToken = token.slice(0, -1).toLowerCase();
+          const elisionBase = token.slice(0, -1).toLowerCase();
           
           // Mapper les élisions courantes à leur forme complète
-          if (normalizedToken === "j") normalizedToken = "je";
-          else if (normalizedToken === "c") normalizedToken = "ce";
-          else if (normalizedToken === "s") normalizedToken = "se";
-          else if (normalizedToken === "d") normalizedToken = "de";
-          else if (normalizedToken === "l") normalizedToken = "le";
-          else if (normalizedToken === "m") normalizedToken = "me";
-          else if (normalizedToken === "n") normalizedToken = "ne";
-          else if (normalizedToken === "t") normalizedToken = "te";
-          else if (normalizedToken === "qu") normalizedToken = "que";
+          let normalizedToken = elisionBase;
+          if (elisionBase === "j") normalizedToken = "je";
+          else if (elisionBase === "c") normalizedToken = "ce";
+          else if (elisionBase === "s") normalizedToken = "se";
+          else if (elisionBase === "d") normalizedToken = "de";
+          else if (elisionBase === "l") normalizedToken = "le";
+          else if (elisionBase === "m") normalizedToken = "me";
+          else if (elisionBase === "n") normalizedToken = "ne";
+          else if (elisionBase === "t") normalizedToken = "te";
+          else if (elisionBase === "qu") normalizedToken = "que";
           
           tokens.push({
             original: token,
             normalized: normalizedToken,
-            isElided: true
+            isElided: true,
+            position: tokens.length
           });
           
           continue;
         }
         
+        // Détecter si ce token fait partie d'une expression composée
+        let isPartOfCompound = false;
+        for (const expr of compoundExpressions) {
+          const exprParts = expr.split(" ");
+          if (i + exprParts.length <= rawTokens.length) {
+            const potentialMatch = [];
+            for (let j = 0; j < exprParts.length; j++) {
+              potentialMatch.push(rawTokens[i + j].toLowerCase());
+            }
+            
+            if (potentialMatch.join(" ") === expr) {
+              tokens.push({
+                original: potentialMatch.map((t, idx) => rawTokens[i + idx]).join(" "),
+                normalized: expr,
+                isCompound: true,
+                componentCount: exprParts.length,
+                position: tokens.length
+              });
+              
+              // Avancer l'index pour sauter les tokens qui font partie de cette expression
+              i += exprParts.length - 1;
+              isPartOfCompound = true;
+              break;
+            }
+          }
+        }
+        
+        if (isPartOfCompound) continue;
+        
         // Token standard
         tokens.push({
           original: token,
-          normalized: token.toLowerCase()
+          normalized: token.toLowerCase(),
+          position: tokens.length
         });
       }
       
@@ -958,591 +1167,1130 @@
     
     // Fonction principale d'analyse grammaticale
     function analyzeGrammar(tokens) {
-      // Résultats de l'analyse
-      const analyzedTokens = [];
-      
-      // Premier passage: étiquetage morphologique initial
-      tokens.forEach((token, index) => {
-        if (token.type === "punctuation") {
-          analyzedTokens.push(token);
-          return;
-        }
+      // Première étape: étiquetage morphologique initial (POS tagging)
+      const taggedTokens = tokens.map((token, index) => {
+        if (token.type === "punctuation") return token;
         
-        // Appliquer l'analyse morphologique pour déterminer le type grammatical
-        const wordType = identifyWordType(token.normalized, tokens, index);
-        
-        analyzedTokens.push({
+        // Analyse morphologique de base
+        return {
           ...token,
-          ...wordType
-        });
+          ...analyzeTokenType(token, tokens, index)
+        };
       });
       
-      // Deuxième passage: analyse syntaxique et contextuelle
-      for (let i = 0; i < analyzedTokens.length; i++) {
-        const token = analyzedTokens[i];
-        if (token.type === "punctuation") continue;
-        
-        // Résolution des ambiguïtés en fonction du contexte
-        resolveAmbiguities(analyzedTokens, i);
-        
-        // Détection des structures grammaticales spécifiques
-        detectSpecificStructures(analyzedTokens, i);
-      }
+      // Deuxième étape: analyse syntaxique et résolution des ambiguïtés
+      const analyzedTokens = syntacticAnalysis(taggedTokens);
       
-      return analyzedTokens;
+      // Troisième étape: détection des structures spéciales (verbes pronominaux, voix passive, etc.)
+      const structuredTokens = detectSpecialStructures(analyzedTokens);
+      
+      // Quatrième étape: identification des sujets, verbes et compléments
+      return identifySentenceComponents(structuredTokens);
     }
     
-    // Identifier le type grammatical d'un mot
-    function identifyWordType(word, tokens, position) {
-      // 1. Vérification des mots invariables (prépositions, conjonctions, adverbes)
+    // Analyse morphologique (première étape)
+    function analyzeTokenType(token, tokens, position) {
+      const word = token.normalized;
       
-      // Vérifier si c'est une préposition
-      if (frenchGrammar.prepositions.includes(word)) {
+      // 1. Détection des déterminants
+      const determinerCheck = isDeterminer(word);
+      if (determinerCheck) {
+        return determinerCheck;
+      }
+      
+      // 2. Détection des pronoms
+      const pronounCheck = isPronoun(word);
+      if (pronounCheck) {
+        return pronounCheck;
+      }
+      
+      // 3. Détection des verbes
+      const verbCheck = isVerb(word, tokens, position);
+      if (verbCheck) {
+        return verbCheck;
+      }
+      
+      // 4. Détection des prépositions
+      if (frenchLexicon.prepositions.includes(word)) {
         return { type: "preposition" };
       }
       
-      // Vérifier si c'est une conjonction de coordination
-      if (frenchGrammar.conjunctions.coordination.includes(word)) {
+      // 5. Détection des conjonctions
+      if (frenchLexicon.coordinatingConjunctions.includes(word)) {
         return { type: "conjunction", subtype: "coordination" };
       }
       
-      // Vérifier si c'est une conjonction de subordination
-      for (const subConj of frenchGrammar.conjunctions.subordination) {
+      for (const subConj of frenchLexicon.subordinatingConjunctions) {
         if (word === subConj || word.startsWith(subConj + " ")) {
           return { type: "conjunction", subtype: "subordination" };
         }
       }
       
-      // Vérifier si c'est un adverbe
-      if (frenchGrammar.adverbs.includes(word)) {
+      // 6. Détection des adverbes
+      if (frenchLexicon.commonAdverbs.includes(word)) {
         return { type: "adverb" };
       }
       
-      // Vérifier si c'est une négation
-      if (frenchGrammar.negations.includes(word)) {
+      // 7. Détection des mots de négation
+      if (frenchLexicon.negationWords.includes(word)) {
         return { type: "negation" };
       }
       
-      // 2. Vérification des pronoms
-      for (const [category, pronounList] of Object.entries(frenchGrammar.pronouns)) {
-        if (pronounList.includes(word)) {
-          return { type: "pronoun", subtype: category };
-        }
+      // 8. Détection des interjections
+      if (frenchLexicon.interjections.includes(word)) {
+        return { type: "interjection" };
       }
       
-      // 3. Vérification des déterminants
-      // Articles définis, indéfinis et partitifs
-      for (const [category, articleList] of Object.entries(frenchGrammar.determiners.articles)) {
-        if (articleList.includes(word)) {
-          return { type: "determiner", subtype: "article " + category };
-        }
-      }
-      
-      // Autres déterminants
-      for (const [category, determinerList] of Object.entries(frenchGrammar.determiners)) {
-        if (category !== "articles" && Array.isArray(determinerList) && determinerList.includes(word)) {
-          return { type: "determiner", subtype: category };
-        }
-      }
-      
-      // 4. Vérification des noms communs connus
-      if (frenchGrammar.nouns.common.includes(word)) {
+      // 9. Détection des noms communs connus
+      if (frenchLexicon.commonNouns.includes(word)) {
         return { type: "noun", subtype: "common" };
       }
       
-      // 5. ANALYSE DES PARTICIPES PRÉSENTS ET FORMES VERBALES
-      
-      // Vérifier participes présents - priorité élevée car souvent mal identifiés
-      if (word.endsWith("ant") && word.length > 4) {
-        // Vérifier dans les formes connues des verbes
-        for (const [verbName, verbForms] of Object.entries(frenchGrammar.verbs.auxiliaries)) {
-          if (verbForms.participePresent && verbForms.participePresent === word) {
-            return {
-              type: "verb",
-              subtype: "auxiliary",
-              infinitif: verbForms.infinitif,
-              temps: "participePresent"
-            };
-          }
-        }
-        
-        for (const [verbName, verbForms] of Object.entries(frenchGrammar.verbs.common)) {
-          if (verbForms.participePresent && verbForms.participePresent === word) {
-            return {
-              type: "verb",
-              infinitif: verbForms.infinitif,
-              temps: "participePresent"
-            };
-          }
-        }
-        
-        // Si pas trouvé dans les formes connues, essayer de déduire l'infinitif
-        // Pour les verbes du 1er groupe
-        const stem = word.substring(0, word.length - 3); // enlever "ant"
-        if (stem.length >= 2) {
-          const possibleInfinitif = stem + "er";
-          return {
-            type: "verb",
-            infinitif: possibleInfinitif,
-            temps: "participePresent"
-          };
-        }
+      // 10. Détection des adjectifs courants
+      if (frenchLexicon.commonAdjectives.includes(word)) {
+        return { type: "adjective", subtype: "qualificatif" };
       }
       
-      // 6. ANALYSE CONTEXTUELLE PRIORITAIRE
-      // Si le mot est précédé par un pronom personnel sujet, c'est probablement un verbe
-      if (position > 0) {
-        const prevToken = tokens[position-1];
-        const prevWord = prevToken ? prevToken.normalized : "";
+      // 11. Analyse contextuelle (utilisation du contexte pour déterminer la nature probable)
+      const contextualCheck = analyzeByContext(word, tokens, position);
+      if (contextualCheck) {
+        return contextualCheck;
+      }
+      
+      // 12. Analyse par terminaison (règles morphologiques)
+      const suffixCheck = analyzeByEnding(word);
+      if (suffixCheck) {
+        return suffixCheck;
+      }
+      
+      // Par défaut, probablement un nom (la catégorie la plus commune pour les mots inconnus)
+      return { type: "noun", subtype: "indéterminé", confidence: "low" };
+    }
+    
+    // Vérifier si le mot est un déterminant
+    function isDeterminer(word) {
+      // Articles définis
+      if (frenchLexicon.definiteArticles.singular.includes(word) || 
+          frenchLexicon.definiteArticles.plural.includes(word)) {
+        return { type: "determiner", subtype: "article défini" };
+      }
+      
+      // Articles indéfinis
+      if (frenchLexicon.indefiniteArticles.singular.includes(word) || 
+          frenchLexicon.indefiniteArticles.plural.includes(word)) {
+        return { type: "determiner", subtype: "article indéfini" };
+      }
+      
+      // Articles partitifs
+      if (frenchLexicon.partitiveArticles.includes(word)) {
+        return { type: "determiner", subtype: "article partitif" };
+      }
+      
+      // Déterminants possessifs
+      if (frenchLexicon.possessiveDeterminers.includes(word)) {
+        return { type: "determiner", subtype: "possessif" };
+      }
+      
+      // Déterminants démonstratifs
+      if (frenchLexicon.demonstrativeDeterminers.includes(word)) {
+        return { type: "determiner", subtype: "démonstratif" };
+      }
+      
+      // Déterminants indéfinis
+      if (frenchLexicon.indefiniteDeterminers.includes(word)) {
+        return { type: "determiner", subtype: "indéfini" };
+      }
+      
+      return null;
+    }
+    
+    // Vérifier si le mot est un pronom
+    function isPronoun(word) {
+      // Pronoms personnels sujets
+      if (frenchLexicon.personalPronouns.subject.includes(word)) {
+        return { type: "pronoun", subtype: "personnel sujet" };
+      }
+      
+      // Pronoms personnels compléments
+      if (frenchLexicon.personalPronouns.object.includes(word)) {
+        return { type: "pronoun", subtype: "personnel complément" };
+      }
+      
+      // Pronoms personnels toniques
+      if (frenchLexicon.personalPronouns.tonic.includes(word)) {
+        return { type: "pronoun", subtype: "personnel tonique" };
+      }
+      
+      // Pronoms réfléchis
+      if (frenchLexicon.personalPronouns.reflexive.includes(word)) {
+        return { type: "pronoun", subtype: "réfléchi" };
+      }
+      
+      // Pronoms adverbiaux
+      if (frenchLexicon.personalPronouns.adverbial.includes(word)) {
+        return { type: "pronoun", subtype: "adverbial" };
+      }
+      
+      // Pronoms démonstratifs
+      if (frenchLexicon.demonstrativePronouns.includes(word)) {
+        return { type: "pronoun", subtype: "démonstratif" };
+      }
+      
+      // Pronoms relatifs
+      if (frenchLexicon.relativePronouns.includes(word)) {
+        return { type: "pronoun", subtype: "relatif" };
+      }
+      
+      // Pronoms interrogatifs
+      if (frenchLexicon.interrogativePronouns.includes(word)) {
+        return { type: "pronoun", subtype: "interrogatif" };
+      }
+      
+      // Pronoms indéfinis
+      if (frenchLexicon.indefinitePronouns.includes(word)) {
+        return { type: "pronoun", subtype: "indéfini" };
+      }
+      
+      return null;
+    }
+    
+    // Vérifier si le mot est un verbe (en utilisant le contexte)
+    function isVerb(word, tokens, position) {
+      // Vérifier dans le dictionnaire des verbes
+      for (const [infinitive, verbData] of Object.entries(frenchLexicon.verbs)) {
+        // Vérifier l'infinitif
+        if (word === verbData.infinitive) {
+          return { 
+            type: "verb", 
+            subtype: "infinitif", 
+            infinitive: infinitive,
+            group: verbData.group
+          };
+        }
         
-        // Liste des pronoms personnels sujets
-        const subjectPronouns = ["je", "j'", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles"];
-        
-        if (subjectPronouns.includes(prevWord)) {
-          // Recherche dans les verbes connus
-          for (const [verbName, verbForms] of Object.entries(frenchGrammar.verbs.common)) {
-            if (verbForms.indicatifPresent && verbForms.indicatifPresent.includes(word)) {
+        // Vérifier les formes conjuguées
+        if (verbData.present) {
+          // Singulier
+          for (let i = 0; i < verbData.present.singular.length; i++) {
+            if (word === verbData.present.singular[i]) {
               return { 
                 type: "verb", 
-                infinitif: verbForms.infinitif,
-                temps: "indicatifPresent" 
+                subtype: "indicatif présent", 
+                person: i + 1, 
+                number: "singular",
+                infinitive: infinitive,
+                group: verbData.group
               };
             }
           }
           
-          // Si ce n'est pas trouvé dans les verbes connus mais suit un pronom personnel,
-          // c'est très probablement un verbe à l'indicatif présent
-          if (word.length > 1) {
-            // Recherche par terminaisons verbales
-            // Pour le premier groupe (-er)
-            const firstGroupEndings = frenchGrammar.verbEndings.firstGroup.indicatifPresent;
-            for (let i = 0; i < firstGroupEndings.length; i++) {
-              const ending = firstGroupEndings[i];
-              // Vérifie si le mot se termine par cette terminaison
-              if (word.endsWith(ending) && word.length > ending.length) {
-                const stem = word.substring(0, word.length - ending.length);
-                // Reconstitue l'infinitif probable
-                const infinitif = stem + "er";
-                return { 
-                  type: "verb", 
-                  infinitif: infinitif,
-                  temps: "indicatifPresent",
-                  personne: i + 1
-                };
-              }
+          // Pluriel
+          for (let i = 0; i < verbData.present.plural.length; i++) {
+            if (word === verbData.present.plural[i]) {
+              return { 
+                type: "verb", 
+                subtype: "indicatif présent", 
+                person: i + 1, 
+                number: "plural",
+                infinitive: infinitive,
+                group: verbData.group
+              };
             }
-            
-            // Autres vérifications pour les verbes du 2e et 3e groupes...
-            // Ces vérifications nécessiteraient des règles plus complexes
+          }
+        }
+      }
+      
+      // Vérifier les verbes auxiliaires
+      for (const [auxName, auxData] of Object.entries(frenchLexicon.auxiliaryVerbs)) {
+        // Vérifier l'infinitif
+        if (word === auxData.infinitive) {
+          return { 
+            type: "verb", 
+            subtype: "auxiliaire", 
+            infinitive: auxData.infinitive
+          };
+        }
+        
+        // Vérifier participe présent
+        if (word === auxData.presentParticiple) {
+          return { 
+            type: "verb", 
+            subtype: "participe présent", 
+            infinitive: auxData.infinitive
+          };
+        }
+        
+        // Vérifier participe passé
+        if (auxData.pastParticiple.includes(word)) {
+          return { 
+            type: "verb", 
+            subtype: "participe passé", 
+            infinitive: auxData.infinitive
+          };
+        }
+        
+        // Présent
+        // Singulier
+        for (let i = 0; i < auxData.present.singular.length; i++) {
+          if (word === auxData.present.singular[i]) {
+            return { 
+              type: "verb", 
+              subtype: "auxiliaire indicatif présent", 
+              person: i + 1, 
+              number: "singular",
+              infinitive: auxData.infinitive,
+              isAuxiliary: true
+            };
+          }
+        }
+        
+        // Pluriel
+        for (let i = 0; i < auxData.present.plural.length; i++) {
+          if (word === auxData.present.plural[i]) {
+            return { 
+              type: "verb", 
+              subtype: "auxiliaire indicatif présent", 
+              person: i + 1, 
+              number: "plural",
+              infinitive: auxData.infinitive,
+              isAuxiliary: true
+            };
+          }
+        }
+      }
+      
+      // Vérifier les terminaisons verbales typiques
+      const verbDeduce = deduceVerbForm(word);
+      if (verbDeduce.isVerb) {
+        return {
+          type: "verb",
+          subtype: verbDeduce.tense,
+          person: verbDeduce.person,
+          number: verbDeduce.number,
+          infinitive: verbDeduce.infinitive,
+          group: verbDeduce.group,
+          confidence: "medium"
+        };
+      }
+      
+      // Vérifier le contexte pour les verbes pronominaux
+      // exemple: "s'amusent" peut être séparé en "s'" (pronom réfléchi) et "amusent" (verbe)
+      if (position > 0) {
+        const prevToken = tokens[position - 1];
+        if (prevToken && prevToken.normalized === "s'" || prevToken.normalized === "se") {
+          // Vérifier si ce mot pourrait être la partie verbale d'un verbe pronominal
+          const verbStem = extractVerbStem(word);
+          
+          // Vérifier avec les terminaisons de l'indicatif présent, 3ème personne du pluriel
+          if (word.endsWith("ent") && word.length > 3) {
+            return {
+              type: "verb",
+              subtype: "indicatif présent (pronominal)",
+              person: 3,
+              number: "plural",
+              infinitive: verbStem + "er", // Hypothèse du 1er groupe
+              group: 1,
+              reflexive: true,
+              confidence: "high"
+            };
+          }
+        }
+      }
+      
+      // Détecter les participes passés
+      if ((word.endsWith("é") || word.endsWith("i") || word.endsWith("u") || 
+           word.endsWith("is") || word.endsWith("ée") || word.endsWith("és") || 
+           word.endsWith("ées") || word.endsWith("ts") || word.endsWith("us") || 
+           word.endsWith("ues")) && word.length > 2) {
+        
+        // Si le mot précédent est une forme d'être ou avoir, c'est probablement un participe passé
+        if (position > 0) {
+          const prevToken = tokens[position - 1];
+          if (prevToken && isAuxiliaryVerb(prevToken.normalized)) {
+            return {
+              type: "verb",
+              subtype: "participe passé",
+              infinitive: deduceInfinitiveFromParticiple(word),
+              confidence: "high",
+              isPastParticiple: true
+            };
+          }
+        }
+        
+        // Si pas précédé d'un auxiliaire mais a une forme de participe passé
+        return {
+          type: "verb",
+          subtype: "participe passé",
+          infinitive: deduceInfinitiveFromParticiple(word),
+          confidence: "medium",
+          isPastParticiple: true
+        };
+      }
+      
+      return null;
+    }
+    
+    // Vérifier si un mot est un verbe auxiliaire
+    function isAuxiliaryVerb(word) {
+      // Formes d'être
+      const etrePresent = ["suis", "es", "est", "sommes", "êtes", "sont"];
+      const etreImperfect = ["étais", "était", "étions", "étiez", "étaient"];
+      
+      // Formes d'avoir
+      const avoirPresent = ["ai", "as", "a", "avons", "avez", "ont"];
+      const avoirImperfect = ["avais", "avait", "avions", "aviez", "avaient"];
+      
+      return etrePresent.includes(word) || etreImperfect.includes(word) || 
+             avoirPresent.includes(word) || avoirImperfect.includes(word);
+    }
+    
+    // Déduire l'infinitif à partir d'un participe passé
+    function deduceInfinitiveFromParticiple(participle) {
+      // Règles de base pour déduire l'infinitif à partir d'un participe passé
+      const baseForm = participle.replace(/e?s$|e$|es$|ée?s?$/, "");
+      
+      if (participle.endsWith("é") || participle.endsWith("ée") || 
+          participle.endsWith("és") || participle.endsWith("ées")) {
+        return baseForm + "er"; // Premier groupe
+      } else if (participle.endsWith("i") || participle.endsWith("ie") || 
+                 participle.endsWith("is") || participle.endsWith("ies")) {
+        return baseForm + "ir"; // Deuxième groupe ou troisième groupe
+      } else if (participle.endsWith("u") || participle.endsWith("ue") || 
+                 participle.endsWith("us") || participle.endsWith("ues")) {
+        // Tenter de deviner pour les verbes du 3e groupe
+        if (baseForm.endsWith("v")) return baseForm + "oir"; // ex: vu -> voir
+        if (baseForm.endsWith("d")) return baseForm + "re"; // ex: rendu -> rendre
+        return baseForm + "re"; // Hypothèse pour troisième groupe
+      }
+      
+      return participle; // Par défaut
+    }
+    
+    // Analyse par contexte
+    function analyzeByContext(word, tokens, position) {
+      // 1. Si précédé d'un déterminant, probablement un nom ou un adjectif
+      if (position > 0) {
+        const prevToken = tokens[position - 1];
+        if (prevToken && isDeterminer(prevToken.normalized)) {
+          // Si suivi d'un mot qui est clairement un nom, probablement un adjectif
+          if (position < tokens.length - 1) {
+            const nextToken = tokens[position + 1];
+            if (nextToken && frenchLexicon.commonNouns.includes(nextToken.normalized)) {
+              return { type: "adjective", subtype: "qualificatif", position: "avant le nom", confidence: "medium" };
+            }
           }
           
-          // Par défaut, si après pronom sujet, considérer comme verbe
-          return { 
-            type: "verb", 
-            temps: "indicatifPresent", 
-            note: "identifié par position après pronom sujet" 
-          };
+          // Sinon, probablement un nom
+          return { type: "noun", subtype: "commun", confidence: "medium" };
         }
       }
       
-      // 7. Vérification des verbes auxiliaires
-      for (const [auxName, auxForms] of Object.entries(frenchGrammar.verbs.auxiliaries)) {
-        // Vérifier l'infinitif
-        if (word === auxForms.infinitif) {
-          return { 
-            type: "verb", 
-            subtype: "auxiliary", 
-            infinitif: auxForms.infinitif,
-            temps: "infinitif" 
-          };
+      // 2. Si précédé d'un pronom personnel sujet, probablement un verbe
+      if (position > 0) {
+        const prevToken = tokens[position - 1];
+        if (prevToken && frenchLexicon.personalPronouns.subject.includes(prevToken.normalized)) {
+          return { type: "verb", subtype: "indicatif présent", confidence: "medium" };
         }
-        
-        // Vérifier les formes conjuguées
-        for (const [tense, forms] of Object.entries(auxForms)) {
-          if (Array.isArray(forms) && forms.includes(word)) {
+      }
+      
+      // 3. Si précédé d'une préposition, probablement un nom
+      if (position > 0) {
+        const prevToken = tokens[position - 1];
+        if (prevToken && frenchLexicon.prepositions.includes(prevToken.normalized)) {
+          return { type: "noun", subtype: "commun", confidence: "medium" };
+        }
+      }
+      
+      // 4. Détection des verbes pronominaux ("s'amusent", etc.)
+      if (position > 0) {
+        const prevToken = tokens[position - 1];
+        // Si précédé de "s'" ou "se", probablement partie d'un verbe pronominal
+        if (prevToken && (prevToken.normalized === "se" || prevToken.normalized === "s'")) {
+          // Vérifier les terminaisons verbales
+          if (word.endsWith("e") || word.endsWith("es") || word.endsWith("ons") || 
+              word.endsWith("ez") || word.endsWith("ent")) {
             return { 
               type: "verb", 
-              subtype: "auxiliary", 
-              infinitif: auxForms.infinitif,
-              temps: tense
+              subtype: "indicatif présent (pronominal)", 
+              confidence: "high"
             };
           }
         }
       }
       
-      // 8. Vérification des verbes communs
-      for (const [verbName, verbForms] of Object.entries(frenchGrammar.verbs.common)) {
-        // Vérifier l'infinitif
-        if (word === verbForms.infinitif) {
-          return { 
-            type: "verb", 
-            infinitif: verbForms.infinitif,
-            temps: "infinitif" 
-          };
-        }
-        
-        // Vérifier les formes conjuguées
-        for (const [tense, forms] of Object.entries(verbForms)) {
-          if (Array.isArray(forms) && forms.includes(word)) {
-            return { 
-              type: "verb", 
-              infinitif: verbForms.infinitif,
-              temps: tense
-            };
-          }
-        }
-      }
-      
-      // 9. Analyse par terminaisons verbales
-      if (word.endsWith("er") && word.length > 3) {
-        // Éviter les noms en -er comme dossier, cahier
-        const nominalExceptions = ["dossier", "cahier", "papier", "tablier", "pilier", "escalier"];
-        if (!nominalExceptions.includes(word)) {
-          return { 
-            type: "verb", 
-            infinitif: word,
-            temps: "infinitif"
-          };
-        }
-      }
-      
-      if (word.endsWith("ir") && word.length > 3) {
-        return { 
-          type: "verb", 
-          infinitif: word,
-          temps: "infinitif"
-        };
-      }
-      
-      if (word.endsWith("re") && word.length > 3) {
-        return { 
-          type: "verb", 
-          infinitif: word,
-          temps: "infinitif"
-        };
-      }
-      
-      // 10. Participes passés
-      if ((word.endsWith("é") || word.endsWith("ée") || word.endsWith("és") || word.endsWith("ées")) && word.length > 3) {
-        // Reconstruire l'infinitif probable
-        const stem = word.slice(0, -1); // enlever l'accent
-        const infinitif = stem + "er";
-        
-        return { 
-          type: "verb", 
-          infinitif: infinitif,
-          temps: "participePassé"
-        };
-      }
-      
-      // 11. ALGORITHME POUR IDENTIFIER LES ADJECTIFS QUALIFICATIFS PAR ANALYSE MORPHOLOGIQUE
-      // Au lieu de simplement vérifier dans une liste, nous utilisons une identification par terminaisons et contexte
-      
-      // Vérifier les terminaisons adjectivales
-      // Cette méthode morphologique identifie les adjectifs par leurs suffixes caractéristiques
-      if (identifyAdjectiveByEnding(word)) {
-        return { type: "adjective", subtype: "qualificatif" };
-      }
-      
-      // Analyse contextuelle pour les adjectifs - position par rapport aux noms
+      // 5. Détecter les structures de voix passive
       if (position > 0 && position < tokens.length - 1) {
-        // Vérifier si c'est entre un déterminant et un nom (ex: "le grand chat")
         const prevToken = tokens[position - 1];
         const nextToken = tokens[position + 1];
         
-        if (isDeterminer(prevToken.normalized) && !isVerb(word) && !isPreposition(word) && !isAdverb(word)) {
-          // Si le mot suivant semble être un nom, alors c'est probablement un adjectif
-          if (isLikelyNoun(nextToken.normalized)) {
-            return { type: "adjective", subtype: "qualificatif", position: "avant le nom" };
+        // Si le mot est "est" ou une autre forme d'être et est suivi d'un possible participe passé
+        if (frenchLexicon.auxiliaryVerbs.être.present.singular.includes(word) ||
+            frenchLexicon.auxiliaryVerbs.être.present.plural.includes(word)) {
+          
+          // Vérifier si le token suivant est potentiellement un participe passé
+          if (nextToken && 
+              (nextToken.normalized.endsWith("é") || 
+               nextToken.normalized.endsWith("ie") || 
+               nextToken.normalized.endsWith("is") || 
+               nextToken.normalized.endsWith("u") || 
+               nextToken.normalized.endsWith("ée") || 
+               nextToken.normalized.endsWith("és") || 
+               nextToken.normalized.endsWith("ées"))) {
+            
+            return { 
+              type: "verb", 
+              subtype: "auxiliaire (voix passive)", 
+              confidence: "high",
+              isAuxiliary: true,
+              role: "auxiliaire passive"
+            };
           }
         }
-        
-        // Vérifier si c'est après un nom (ex: "un livre intéressant")
-        if (isLikelyNoun(prevToken.normalized) && !isVerb(word) && !isPreposition(word)) {
-          return { type: "adjective", subtype: "qualificatif", position: "après le nom" };
-        }
-        
-        // Vérifier si c'est après un verbe d'état (ex: "il est grand")
-        if (isStateVerb(prevToken.normalized) && !isVerb(word) && !isPreposition(word) && !isAdverb(word)) {
-          return { type: "adjective", subtype: "qualificatif", position: "attribut du sujet" };
-        }
       }
       
-      // 12. Analyse par terminaisons nominales
-      if (word.endsWith("tion") || word.endsWith("sion") || 
-          word.endsWith("ment") || word.endsWith("age") || 
-          word.endsWith("té") || word.endsWith("ité") || 
-          word.endsWith("eur") || word.endsWith("esse") || 
-          word.endsWith("ance") || word.endsWith("ence")) {
-        return { type: "noun" };
-      }
-      
-      // 13. Analyse contextuelle
-      // Si précédé par un déterminant, probablement un nom
-      if (position > 0) {
-        const prevToken = tokens[position-1];
-        if (prevToken && isDeterminer(prevToken.normalized)) {
-          return { type: "noun" };
-        }
-      }
-      
-      // Si précédé par une préposition, souvent un nom
-      if (position > 0 && tokens[position-1] && 
-          frenchGrammar.prepositions.includes(tokens[position-1].normalized)) {
-        return { type: "noun" };
-      }
-      
-      // 14. Cas par défaut: on suppose que c'est un nom (hypothèse la plus probable)
-      return { type: "noun", subtype: "default" };
+      return null;
     }
     
-    // FONCTION AVANCÉE POUR IDENTIFIER LES ADJECTIFS QUALIFICATIFS
-    function identifyAdjectiveByEnding(word) {
-      // Convertir en minuscules pour la comparaison
-      const lowercaseWord = word.toLowerCase();
-      
-      // 1. Vérifier les terminaisons caractéristiques des adjectifs
-      const { masculine, feminine, plural } = frenchGrammar.adjectiveEndings;
-      
-      // Vérifier par ordre de spécificité (du plus spécifique au plus général)
-      
-      // Terminaisons adjectivales masculines complexes
-      for (const ending of masculine) {
-        if (ending.length > 2 && lowercaseWord.endsWith(ending) && lowercaseWord.length > ending.length) {
-          return true;
-        }
-      }
-      
-      // Terminaisons adjectivales féminines complexes
-      for (const ending of feminine) {
-        if (ending.length > 2 && lowercaseWord.endsWith(ending) && lowercaseWord.length > ending.length) {
-          return true;
-        }
-      }
-      
-      // Terminaisons adjectivales au pluriel
-      for (const ending of plural) {
-        if (ending.length > 2 && lowercaseWord.endsWith(ending) && lowercaseWord.length > ending.length) {
-          return true;
-        }
-      }
-      
-      // 2. Vérification morphologique: si le mot peut former un adverbe en -ment
-      // Les adjectifs féminins peuvent souvent être transformés en adverbes en ajoutant -ment
-      for (const femEnding of ["e", "le", "ne", "te", "se", "ce", "de"]) {
-        if (lowercaseWord.endsWith(femEnding)) {
-          const possibleAdverb = lowercaseWord + "ment";
-          // La vérification complète nécessiterait une liste d'adverbes pour valider
-          // Mais cette heuristique peut aider à identifier certains adjectifs
-          if (possibleAdverb.length > 6) {
-            return true;
-          }
-        }
-      }
-      
-      // 3. Vérification des suffixes typiquement adjectivaux
-      const adjectiveSuffixes = [
-        "able", "ible", "uble", "al", "el", "il", "esque", "ien", "ain", "ais", 
-        "ois", "if", "atif", "itif", "eux", "oux", "iste", "ique", "ème"
+    // Analyse par terminaison (suffixes)
+    function analyzeByEnding(word) {
+      // 1. Terminaisons nominales
+      const nominalEndings = [
+        { suffix: "tion", type: "noun", gender: "feminine" },
+        { suffix: "sion", type: "noun", gender: "feminine" },
+        { suffix: "té", type: "noun", gender: "feminine" },
+        { suffix: "ité", type: "noun", gender: "feminine" },
+        { suffix: "isme", type: "noun", gender: "masculine" },
+        { suffix: "age", type: "noun", gender: "masculine" },
+        { suffix: "ment", type: "noun", gender: "masculine" },
+        { suffix: "eur", type: "noun", gender: "masculine" },
+        { suffix: "esse", type: "noun", gender: "feminine" },
+        { suffix: "ette", type: "noun", gender: "feminine" },
+        { suffix: "ie", type: "noun", gender: "feminine" },
+        { suffix: "erie", type: "noun", gender: "feminine" },
+        { suffix: "ance", type: "noun", gender: "feminine" },
+        { suffix: "ence", type: "noun", gender: "feminine" },
+        { suffix: "tude", type: "noun", gender: "feminine" },
+        { suffix: "ade", type: "noun", gender: "feminine" },
+        { suffix: "ure", type: "noun", gender: "feminine" },
+        { suffix: "oir", type: "noun", gender: "masculine" },
+        { suffix: "oire", type: "noun", gender: "feminine" }
       ];
       
-      for (const suffix of adjectiveSuffixes) {
-        if (lowercaseWord.endsWith(suffix) && lowercaseWord.length > suffix.length + 1) {
-          return true;
+      // 2. Terminaisons adjectivales
+      const adjectivalEndings = [
+        { suffix: "able", type: "adjective" },
+        { suffix: "ible", type: "adjective" },
+        { suffix: "eux", type: "adjective" },
+        { suffix: "euse", type: "adjective" },
+        { suffix: "if", type: "adjective" },
+        { suffix: "ive", type: "adjective" },
+        { suffix: "al", type: "adjective" },
+        { suffix: "ale", type: "adjective" },
+        { suffix: "el", type: "adjective" },
+        { suffix: "elle", type: "adjective" },
+        { suffix: "ique", type: "adjective" },
+        { suffix: "aire", type: "adjective" },
+        { suffix: "ien", type: "adjective" },
+        { suffix: "ienne", type: "adjective" },
+        { suffix: "ois", type: "adjective" },
+        { suffix: "oise", type: "adjective" },
+        { suffix: "ain", type: "adjective" },
+        { suffix: "aine", type: "adjective" },
+        { suffix: "ard", type: "adjective" },
+        { suffix: "arde", type: "adjective" },
+        { suffix: "ent", type: "adjective" },
+        { suffix: "ente", type: "adjective" },
+        { suffix: "escent", type: "adjective" },
+        { suffix: "escente", type: "adjective" }
+      ];
+      
+      // 3. Terminaisons adverbiales
+      const adverbialEndings = [
+        { suffix: "ment", type: "adverb" }
+      ];
+      
+      // 4. Terminaisons verbales (infinitif)
+      const verbalEndings = [
+        { suffix: "er", type: "verb", subtype: "infinitif", group: 1 },
+        { suffix: "ir", type: "verb", subtype: "infinitif", group: 2 },
+        { suffix: "re", type: "verb", subtype: "infinitif", group: 3 },
+        { suffix: "oir", type: "verb", subtype: "infinitif", group: 3 }
+      ];
+      
+      // Vérifier les terminaisons dans l'ordre: adjectival, nominal, adverbial, verbal
+      // Car certaines terminaisons peuvent être ambiguës (ex: "ment" peut être nominal ou adverbial)
+      
+      // Vérifier terminaisons adjectivales
+      for (const ending of adjectivalEndings) {
+        if (word.endsWith(ending.suffix) && word.length > ending.suffix.length + 1) {
+          return { type: "adjective", subtype: "qualificatif", confidence: "medium" };
         }
       }
       
-      return false;
+      // Vérifier terminaisons nominales
+      for (const ending of nominalEndings) {
+        if (word.endsWith(ending.suffix) && word.length > ending.suffix.length + 1) {
+          return { type: "noun", subtype: "commun", gender: ending.gender, confidence: "medium" };
+        }
+      }
+      
+      // Vérifier terminaisons adverbiales (sauf celles qui sont aussi nominales)
+      for (const ending of adverbialEndings) {
+        // Vérifier que ce n'est pas un nom se terminant par "ment"
+        if (word.endsWith(ending.suffix) && word.length > ending.suffix.length + 2 &&
+            !word.endsWith("ement") && !word.endsWith("issement")) {
+          return { type: "adverb", confidence: "medium" };
+        }
+      }
+      
+      // Vérifier terminaisons verbales
+      for (const ending of verbalEndings) {
+        // Éviter les faux positifs (noms se terminant par -er comme "dossier")
+        const exceptions = ["dossier", "cahier", "papier", "tablier", "pilier", "escalier", "métier"];
+        if (word.endsWith(ending.suffix) && word.length > ending.suffix.length + 1 &&
+            !exceptions.includes(word)) {
+          return { 
+            type: "verb", 
+            subtype: ending.subtype, 
+            group: ending.group,
+            infinitive: word,
+            confidence: "medium" 
+          };
+        }
+      }
+      
+      return null;
     }
     
-    // FONCTION POUR IDENTIFIER LES FORMES VERBALES PAR TERMINAISON
-    function identifyVerbByEnding(word) {
-      // Convertir en minuscules pour la comparaison
-      const lowercaseWord = word.toLowerCase();
-      
-      // Terminaisons verbales fréquentes pour le présent de l'indicatif
+    // Déduire la forme verbale à partir de la terminaison
+    function deduceVerbForm(word) {
+      // Terminaisons du présent de l'indicatif
       const presentEndings = {
-        firstPerson: ["e", "s", "x", "is", "ns"],  // je ...
-        secondPerson: ["es", "s", "x", "is"],      // tu ...
-        thirdPerson: ["e", "t", "d", "it"],        // il/elle ...
-        firstPersonPlural: ["ons", "mes"],         // nous ...
-        secondPersonPlural: ["ez", "tes"],         // vous ...
-        thirdPersonPlural: ["ent", "ont"]          // ils/elles ...
+        firstGroup: {
+          singular: ["e", "es", "e"],
+          plural: ["ons", "ez", "ent"]
+        },
+        secondGroup: {
+          singular: ["is", "is", "it"],
+          plural: ["issons", "issez", "issent"]
+        }
       };
       
-      // Vérifier pour chaque personne
-      for (const [person, endings] of Object.entries(presentEndings)) {
-        for (const ending of endings) {
-          if (lowercaseWord.endsWith(ending) && lowercaseWord.length > ending.length + 1) {
-            // Vérifier que ce n'est pas un mot avec une terminaison similaire mais non verbale
-            // (par exemple "table" se termine par "e" mais n'est pas un verbe)
-            const stem = lowercaseWord.slice(0, -ending.length);
-            
-            // Les tiges verbales ont généralement au moins 2 caractères
-            if (stem.length >= 2) {
-              return { isVerb: true, person: person };
-            }
-          }
+      // Vérifier les terminaisons du premier groupe (-er)
+      // Singulier
+      for (let i = 0; i < presentEndings.firstGroup.singular.length; i++) {
+        const ending = presentEndings.firstGroup.singular[i];
+        if (word.endsWith(ending) && word.length > ending.length + 1) {
+          const stem = word.slice(0, word.length - ending.length);
+          return {
+            isVerb: true,
+            tense: "indicatif présent",
+            person: i + 1,
+            number: "singular",
+            infinitive: stem + "er",
+            group: 1
+          };
         }
+      }
+      
+      // Pluriel
+      for (let i = 0; i < presentEndings.firstGroup.plural.length; i++) {
+        const ending = presentEndings.firstGroup.plural[i];
+        if (word.endsWith(ending) && word.length > ending.length + 1) {
+          const stem = word.slice(0, word.length - ending.length);
+          return {
+            isVerb: true,
+            tense: "indicatif présent",
+            person: i + 1,
+            number: "plural",
+            infinitive: stem + "er",
+            group: 1
+          };
+        }
+      }
+      
+      // Vérifier les terminaisons du deuxième groupe (-ir)
+      // Singulier
+      for (let i = 0; i < presentEndings.secondGroup.singular.length; i++) {
+        const ending = presentEndings.secondGroup.singular[i];
+        if (word.endsWith(ending) && word.length > ending.length + 1) {
+          const stem = word.slice(0, word.length - ending.length);
+          return {
+            isVerb: true,
+            tense: "indicatif présent",
+            person: i + 1,
+            number: "singular",
+            infinitive: stem + "ir",
+            group: 2
+          };
+        }
+      }
+      
+      // Pluriel
+      for (let i = 0; i < presentEndings.secondGroup.plural.length; i++) {
+        const ending = presentEndings.secondGroup.plural[i];
+        if (word.endsWith(ending) && word.length > ending.length + 1) {
+          // On retire "-iss" pour obtenir le radical
+          const stem = word.slice(0, word.length - ending.length);
+          return {
+            isVerb: true,
+            tense: "indicatif présent",
+            person: i + 1,
+            number: "plural",
+            infinitive: stem + "ir",
+            group: 2
+          };
+        }
+      }
+      
+      // Terminaisons pour le participe présent (-ant)
+      if (word.endsWith("ant") && word.length > 4) {
+        const stem = word.slice(0, word.length - 3);
+        return {
+          isVerb: true,
+          tense: "participe présent",
+          infinitive: stem + "er", // Hypothèse
+          group: 1 // Hypothèse
+        };
+      }
+      
+      // Terminaisons pour le participe passé (-é, -ée, -és, -ées)
+      if ((word.endsWith("é") || word.endsWith("ée") || word.endsWith("és") || word.endsWith("ées")) && word.length > 2) {
+        const stem = word.slice(0, word.length - (word.endsWith("é") ? 1 : (word.endsWith("és") || word.endsWith("ée") ? 2 : 3)));
+        return {
+          isVerb: true,
+          tense: "participe passé",
+          infinitive: stem + "er",
+          group: 1,
+          isPastParticiple: true
+        };
       }
       
       return { isVerb: false };
     }
     
-    // Fonctions d'aide pour l'analyse contextuelle
-    function isDeterminer(word) {
-      // Vérifier dans tous les types de déterminants
-      for (const [category, list] of Object.entries(frenchGrammar.determiners.articles)) {
-        if (list.includes(word)) return true;
-      }
+    // Fonction pour analyser le texte en recherchant les verbes pronominaux
+    function detectVerbPronominal(tokens, startIndex) {
+      if (startIndex >= tokens.length - 1) return null;
       
-      for (const [category, list] of Object.entries(frenchGrammar.determiners)) {
-        if (category !== "articles" && Array.isArray(list) && list.includes(word)) {
-          return true;
+      const currentToken = tokens[startIndex];
+      const nextToken = tokens[startIndex + 1];
+      
+      // Vérifier si le token actuel est un pronom réfléchi
+      if (currentToken.type === "pronoun" && 
+          (currentToken.subtype === "réfléchi" || currentToken.normalized === "se" || currentToken.normalized === "s'")) {
+        
+        // Vérifier si le token suivant est un verbe ou peut être analysé comme un verbe
+        if (nextToken.type === "verb" || (nextToken.type === "adjective" && nextToken.normalized.endsWith("ent"))) {
+          // Créer une structure de verbe pronominal
+          return {
+            start: startIndex,
+            end: startIndex + 1,
+            type: "verb_pronominal",
+            components: [
+              { ...currentToken, role: "reflexive_pronoun" },
+              { ...nextToken, type: "verb", role: "verb_component", subtype: "indicatif présent" }
+            ]
+          };
         }
       }
       
-      return false;
+      return null;
     }
     
-    function isVerb(word) {
-      // Vérifier les auxiliaires
-      for (const [aux, forms] of Object.entries(frenchGrammar.verbs.auxiliaries)) {
-        if (word === forms.infinitif) return true;
+    // Détection de voix passive
+    function detectPassiveVoice(tokens, startIndex) {
+      // Il faut au moins 3 tokens pour une voix passive minimale: sujet + être + participe passé
+      if (startIndex + 2 >= tokens.length) return null;
+      
+      // Vérifier si on a un auxiliaire être suivi d'un participe passé
+      let auxIndex = -1;
+      let participleIndex = -1;
+      
+      // Rechercher l'auxiliaire être
+      for (let i = startIndex; i < tokens.length - 1; i++) {
+        if (tokens[i].type === "verb" && tokens[i].isAuxiliary && 
+            tokens[i].infinitive === "être") {
+          auxIndex = i;
+          
+          // Rechercher le participe passé après l'auxiliaire
+          for (let j = i + 1; j < tokens.length; j++) {
+            if (tokens[j].type === "verb" && tokens[j].isPastParticiple) {
+              participleIndex = j;
+              break;
+            }
+          }
+          
+          break;
+        }
+      }
+      
+      if (auxIndex !== -1 && participleIndex !== -1) {
+        // Rechercher un potentiel complément d'agent introduit par "par" ou "de"
+        let agentIndex = -1;
+        let prepositionIndex = -1;
         
-        for (const [tense, tenseforms] of Object.entries(forms)) {
-          if (Array.isArray(tenseforms) && tenseforms.includes(word)) {
-            return true;
+        for (let i = participleIndex + 1; i < tokens.length; i++) {
+          if (tokens[i].type === "preposition" && 
+              frenchLexicon.agentPrepositions.includes(tokens[i].normalized)) {
+            prepositionIndex = i;
+            
+            // Chercher le complément d'agent après la préposition
+            if (i + 1 < tokens.length && 
+                (tokens[i+1].type === "noun" || tokens[i+1].type === "pronoun")) {
+              agentIndex = i + 1;
+              break;
+            }
+          }
+        }
+        
+        // Structure de voix passive trouvée
+        return {
+          type: "passive_voice",
+          auxiliaryIndex: auxIndex,
+          participleIndex: participleIndex,
+          prepositionIndex: prepositionIndex !== -1 ? prepositionIndex : null,
+          agentIndex: agentIndex !== -1 ? agentIndex : null,
+          // Le sujet est généralement avant l'auxiliaire
+          subjectIndices: findSubjectBeforeIndex(tokens, auxIndex)
+        };
+      }
+      
+      return null;
+    }
+    
+    // Trouver le sujet avant un certain indice
+    function findSubjectBeforeIndex(tokens, endIndex) {
+      // Le sujet peut être un groupe nominal ou un pronom
+      const subjectIndices = [];
+      
+      for (let i = 0; i < endIndex; i++) {
+        // Si c'est un pronom sujet
+        if (tokens[i].type === "pronoun" && tokens[i].subtype === "personnel sujet") {
+          subjectIndices.push(i);
+        }
+        // Si c'est un nom précédé d'un déterminant (groupe nominal)
+        else if (tokens[i].type === "noun" && i > 0 && tokens[i-1].type === "determiner") {
+          subjectIndices.push(i-1, i); // Inclure le déterminant et le nom
+          
+          // Inclure aussi les adjectifs qui qualifient ce nom
+          let j = i + 1;
+          while (j < endIndex && tokens[j].type === "adjective") {
+            subjectIndices.push(j);
+            j++;
           }
         }
       }
       
-      // Vérifier les verbes communs
-      for (const [verb, forms] of Object.entries(frenchGrammar.verbs.common)) {
-        if (word === forms.infinitif) return true;
+      return subjectIndices;
+    }
+    
+    // Extraction du radical verbal (pour les verbes pronominaux)
+    function extractVerbStem(word) {
+      // Enlever les terminaisons communes pour trouver le radical
+      if (word.endsWith("ent")) return word.slice(0, word.length - 3);
+      if (word.endsWith("ez")) return word.slice(0, word.length - 2);
+      if (word.endsWith("ons")) return word.slice(0, word.length - 3);
+      if (word.endsWith("e") || word.endsWith("es")) return word.slice(0, word.length - 1);
+      
+      return word; // Par défaut
+    }
+    
+    // Analyse syntaxique et résolution des ambiguïtés
+    function syntacticAnalysis(tokens) {
+      const analyzed = [...tokens];
+      
+      // Parcourir les tokens pour résoudre les ambiguïtés
+      for (let i = 0; i < analyzed.length; i++) {
+        if (analyzed[i].type === "punctuation") continue;
         
-        for (const [tense, tenseforms] of Object.entries(forms)) {
-          if (Array.isArray(tenseforms) && tenseforms.includes(word)) {
-            return true;
+        // Résoudre les ambiguïtés articles/pronoms ("le", "la", "les")
+        if (analyzed[i].normalized === "le" || analyzed[i].normalized === "la" || analyzed[i].normalized === "les") {
+          // Si suivi d'un nom ou adjectif, c'est un article
+          if (i < analyzed.length - 1 && 
+              (analyzed[i+1].type === "noun" || analyzed[i+1].type === "adjective")) {
+            analyzed[i].type = "determiner";
+            analyzed[i].subtype = "article défini";
+          }
+          // Sinon c'est probablement un pronom
+          else {
+            analyzed[i].type = "pronoun";
+            analyzed[i].subtype = "personnel complément";
           }
         }
-      }
-      
-      // Vérifier par terminaisons verbales
-      if (word.endsWith("er") || word.endsWith("ir") || word.endsWith("re")) {
-        return true;
-      }
-      
-      // Vérifier par l'analyse morphologique des terminaisons
-      const verbAnalysis = identifyVerbByEnding(word);
-      if (verbAnalysis.isVerb) {
-        return true;
-      }
-      
-      return false;
-    }
-    
-    function isPreposition(word) {
-      return frenchGrammar.prepositions.includes(word);
-    }
-    
-    function isAdverb(word) {
-      return frenchGrammar.adverbs.includes(word);
-    }
-    
-    function isPersonalPronoun(word) {
-      return frenchGrammar.pronouns.personal.includes(word);
-    }
-    
-    function isLikelyNoun(word) {
-      // Vérifier si c'est un nom connu
-      if (frenchGrammar.nouns.common.includes(word)) {
-        return true;
-      }
-      
-      // Noms ont souvent des terminaisons spécifiques
-      const nounSuffixes = ["tion", "sion", "ment", "age", "ance", "ence", "ité", "isme", "esse", "ie", "ure"];
-      
-      for (const suffix of nounSuffixes) {
-        if (word.endsWith(suffix)) return true;
-      }
-      
-      return false;
-    }
-    
-    function isStateVerb(word) {
-      // Verbes d'état (être, sembler, paraître, devenir, demeurer, rester, etc.)
-      const stateVerbs = ["suis", "es", "est", "sommes", "êtes", "sont", "étais", "était", "étaient", 
-                         "semble", "sembles", "semblent", "paraît", "paraissent", 
-                         "devient", "deviennent", "demeure", "demeurent", "reste", "restent",
-                         "parais", "demeures", "restes", "deviens"];
-      
-      return stateVerbs.includes(word);
-    }
-    
-    // Résoudre les ambiguïtés grammaticales en fonction du contexte
-    function resolveAmbiguities(tokens, position) {
-      const token = tokens[position];
-      if (!token || token.type === "punctuation") return;
-      
-      // 1. Traitement prioritaire pour les mots après pronoms personnels sujets
-      if (position > 0) {
-        const prevToken = tokens[position - 1];
-        if (prevToken && prevToken.type === "pronoun" && prevToken.subtype === "personal") {
-          // Vérifier s'il s'agit d'un pronom sujet
-          const subjectPronouns = ["je", "j'", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles"];
-          if (subjectPronouns.includes(prevToken.normalized)) {
-            // Si le mot n'est pas déjà identifié comme verbe et n'est pas clairement autre chose
-            if (token.type !== "verb" && token.type !== "adverb" && token.type !== "preposition" && 
-                token.type !== "conjunction" && token.type !== "negation") {
-              token.type = "verb";
-              token.role = "après pronom personnel sujet";
+        
+        // Résoudre les ambiguïtés pour les pronoms réfléchis dans les verbes pronominaux
+        if (analyzed[i].normalized === "se" || analyzed[i].normalized === "s'") {
+          // Si suivi d'un mot qui pourrait être un verbe
+          if (i < analyzed.length - 1) {
+            const nextToken = analyzed[i+1];
+            // Si déjà identifié comme verbe ou si a une terminaison verbale
+            if (nextToken.type === "verb" || 
+                (nextToken.normalized.endsWith("e") || nextToken.normalized.endsWith("es") || 
+                 nextToken.normalized.endsWith("ent"))) {
               
-              // Essayer de déduire l'infinitif
-              if (token.normalized.endsWith("e")) {
-                const stem = token.normalized.slice(0, -1);
-                token.infinitif = stem + "er";
-                token.temps = "indicatifPresent";
+              analyzed[i].type = "pronoun";
+              analyzed[i].subtype = "réfléchi";
+              analyzed[i].role = "pronom réfléchi (verbe pronominal)";
+              
+              // Assurer que le token suivant est identifié comme verbe
+              if (nextToken.type !== "verb") {
+                analyzed[i+1].type = "verb";
+                analyzed[i+1].subtype = "indicatif présent";
+                analyzed[i+1].role = "composante verbale (verbe pronominal)";
+              }
+            }
+          }
+        }
+        
+        // Correction pour les adjectifs qui suivent un déterminant et précèdent un nom
+        if (analyzed[i].type === "adjective" && i > 0 && i < analyzed.length - 1) {
+          const prevToken = analyzed[i-1];
+          const nextToken = analyzed[i+1];
+          
+          if (prevToken.type === "determiner" && nextToken.type === "noun") {
+            analyzed[i].position = "avant le nom";
+            analyzed[i].pattern = "déterminant + adjectif + nom";
+          }
+        }
+        
+        // Correction pour les mots qui ne devraient pas être des adjectifs après un déterminant
+        if (analyzed[i].type === "adjective" && i > 0) {
+          const prevToken = analyzed[i-1];
+          
+          if (prevToken.type === "determiner" && 
+              !frenchLexicon.commonAdjectives.includes(analyzed[i].normalized) && 
+              i === analyzed.length - 1) {
+            // Si c'est le dernier mot après un déterminant et pas un adjectif reconnu
+            analyzed[i].type = "noun";
+            analyzed[i].subtype = "commun";
+            delete analyzed[i].position;
+          }
+        }
+        
+        // Amélioration de la détection des auxiliaires pour la voix passive
+        if (analyzed[i].type === "verb" && 
+            (analyzed[i].infinitive === "être" || 
+             analyzed[i].normalized === "est" || 
+             analyzed[i].normalized === "sont")) {
+          
+          // Vérifier si suivi d'un participe passé
+          if (i < analyzed.length - 1) {
+            const nextToken = analyzed[i+1];
+            if (nextToken.type === "verb" && 
+                (nextToken.subtype === "participe passé" || nextToken.isPastParticiple)) {
+              analyzed[i].isAuxiliary = true;
+              analyzed[i].role = "auxiliaire (voix passive)";
+            }
+          }
+        }
+      }
+      
+      return analyzed;
+    }
+    
+    // Détection des structures grammaticales spéciales
+    function detectSpecialStructures(tokens) {
+      const result = [...tokens];
+      let i = 0;
+      
+      while (i < result.length) {
+        // Détecter les verbes pronominaux
+        const verbPronominal = detectVerbPronominal(result, i);
+        if (verbPronominal) {
+          // Marquer le pronom réfléchi
+          result[i].role = "pronom réfléchi";
+          result[i].verbPronominalPart = true;
+          
+          // Marquer le verbe
+          result[i+1].type = "verb";
+          result[i+1].subtype = "indicatif présent";
+          result[i+1].verbPronominalPart = true;
+          result[i+1].role = "composante verbale";
+          
+          // Sauter le token suivant qui fait partie du verbe pronominal
+          i += 2;
+          continue;
+        }
+        
+        // Détecter et corriger les "il y a" (locution verbale)
+        if (i < result.length - 2 && 
+            result[i].normalized === "il" && 
+            result[i+1].normalized === "y" && 
+            result[i+2].normalized === "a") {
+          
+          result[i].role = "composante de locution verbale";
+          result[i+1].role = "composante de locution verbale";
+          result[i+2].role = "composante de locution verbale";
+          
+          i += 3;
+          continue;
+        }
+        
+        i++;
+      }
+      
+      // Détection de voix passive dans l'ensemble de la phrase
+      const passiveVoice = detectPassiveVoice(result, 0);
+      if (passiveVoice) {
+        // Marquer l'auxiliaire
+        result[passiveVoice.auxiliaryIndex].role = "auxiliaire (voix passive)";
+        
+        // Marquer le participe passé
+        result[passiveVoice.participleIndex].role = "participe passé (voix passive)";
+        
+        // Marquer le complément d'agent si présent
+        if (passiveVoice.prepositionIndex !== null) {
+          result[passiveVoice.prepositionIndex].role = "préposition (complément d'agent)";
+        }
+        
+        if (passiveVoice.agentIndex !== null) {
+          result[passiveVoice.agentIndex].role = "complément d'agent";
+          result[passiveVoice.agentIndex].isAgent = true;
+        }
+        
+        // Marquer le sujet
+        passiveVoice.subjectIndices.forEach(index => {
+          result[index].isPassiveSubject = true;
+          if (result[index].type === "noun") {
+            result[index].role = "sujet (patient)";
+          } else if (result[index].type === "determiner") {
+            result[index].role = "déterminant du sujet";
+          }
+        });
+      }
+      
+      return result;
+    }
+    
+    // Identification des sujets, verbes et compléments dans la phrase
+    function identifySentenceComponents(tokens) {
+      const result = [...tokens];
+      let mainVerb = null;
+      let mainVerbIndex = -1;
+      
+      // Première étape: identifier le verbe principal
+      for (let i = 0; i < result.length; i++) {
+        if (result[i].type === "verb" && !result[i].isAuxiliary && 
+            !result[i].isPastParticiple && !result[i].verbPronominalPart) {
+          mainVerb = result[i];
+          mainVerbIndex = i;
+          mainVerb.role = "verbe principal";
+          break;
+        }
+      }
+      
+      // Si pas de verbe principal trouvé, chercher un verbe pronominal
+      if (mainVerbIndex === -1) {
+        for (let i = 0; i < result.length - 1; i++) {
+          if (result[i].type === "pronoun" && result[i].subtype === "réfléchi" &&
+              result[i+1].type === "verb") {
+            mainVerb = result[i+1];
+            mainVerbIndex = i+1;
+            mainVerb.role = "verbe principal (pronominal)";
+            result[i].role = "pronom réfléchi du verbe principal";
+            break;
+          }
+        }
+      }
+      
+      // Si toujours pas de verbe principal, chercher un auxiliaire + participe passé
+      if (mainVerbIndex === -1) {
+        for (let i = 0; i < result.length - 1; i++) {
+          if (result[i].type === "verb" && result[i].isAuxiliary &&
+              i+1 < result.length && result[i+1].type === "verb" && result[i+1].isPastParticiple) {
+            mainVerb = result[i+1];
+            mainVerbIndex = i+1;
+            mainVerb.role = "participe passé du verbe principal";
+            result[i].role = "auxiliaire du verbe principal";
+            break;
+          }
+        }
+      }
+      
+      // Si on a trouvé un verbe principal, chercher son sujet et ses compléments
+      if (mainVerbIndex !== -1) {
+        // Chercher le sujet (avant le verbe principal)
+        let subjectFound = false;
+        
+        // Cas 1: Pronom personnel sujet juste avant le verbe
+        if (mainVerbIndex > 0 && 
+            result[mainVerbIndex-1].type === "pronoun" && 
+            result[mainVerbIndex-1].subtype === "personnel sujet") {
+          result[mainVerbIndex-1].role = "sujet";
+          result[mainVerbIndex-1].isSubject = true;
+          subjectFound = true;
+        }
+        // Cas 2: Chercher un groupe nominal (déterminant + nom)
+        else {
+          for (let i = 0; i < mainVerbIndex; i++) {
+            if (result[i].type === "noun" && i > 0 && result[i-1].type === "determiner") {
+              result[i].role = "sujet";
+              result[i].isSubject = true;
+              result[i-1].role = "déterminant du sujet";
+              
+              // Vérifier s'il y a des adjectifs après le nom
+              let j = i + 1;
+              while (j < mainVerbIndex && result[j].type === "adjective") {
+                result[j].role = "adjectif du sujet";
+                j++;
+              }
+              
+              subjectFound = true;
+              break;
+            }
+          }
+        }
+        
+        // Si on n'a pas trouvé de sujet standard, vérifier s'il s'agit d'une voix passive
+        if (!subjectFound) {
+          for (let i = 0; i < result.length; i++) {
+            if (result[i].isPassiveSubject) {
+              subjectFound = true;
+              break;
+            }
+          }
+        }
+        
+        // Chercher un complément d'objet direct après le verbe
+        let objectFound = false;
+        
+        // Cas 1: Pronom personnel complément avant le verbe
+        for (let i = 0; i < mainVerbIndex; i++) {
+          if (result[i].type === "pronoun" && result[i].subtype === "personnel complément") {
+            result[i].role = "complément d'objet direct";
+            result[i].isObject = true;
+            objectFound = true;
+            break;
+          }
+        }
+        
+        // Cas 2: Groupe nominal après le verbe
+        if (!objectFound) {
+          for (let i = mainVerbIndex + 1; i < result.length; i++) {
+            if (result[i].type === "noun" && i > 0 && result[i-1].type === "determiner") {
+              // Vérifier qu'il n'est pas déjà identifié comme agent dans une voix passive
+              if (!result[i].isAgent) {
+                result[i].role = "complément d'objet direct";
+                result[i].isObject = true;
+                result[i-1].role = "déterminant du COD";
+                
+                // Vérifier s'il y a des adjectifs après le nom
+                let j = i + 1;
+                while (j < result.length && result[j].type === "adjective") {
+                  result[j].role = "adjectif du COD";
+                  j++;
+                }
+                
+                objectFound = true;
+                break;
               }
             }
           }
         }
       }
       
-      // 2. Analyse des séquences "auxiliaire + participe passé"
-      if (position > 0 && position < tokens.length - 1) {
-        const prevToken = tokens[position - 1];
-        
-        // Si ce mot est un participe passé et le précédent est une forme de avoir ou être
-        if (token.temps === "participePassé" && prevToken.type === "verb" && 
-            (prevToken.infinitif === "avoir" || prevToken.infinitif === "être")) {
-          // Confirmer que c'est bien un verbe
-          token.type = "verb";
-          token.role = "participe dans temps composé";
-          
-          // Identifier l'auxiliaire
-          prevToken.role = "auxiliaire dans temps composé";
-        }
-      }
-    }
-    
-    // Détecter des structures grammaticales spécifiques
-    function detectSpecificStructures(tokens, position) {
-      const token = tokens[position];
-      if (!token || token.type === "punctuation") return;
-      
-      // Structure "être + adjectif"
-      if (position > 0) {
-        const prevToken = tokens[position - 1];
-        
-        if (prevToken.type === "verb" && prevToken.infinitif === "être") {
-          // Si ce n'est pas clairement un verbe ou un nom, c'est probablement un adjectif
-          if (token.type !== "verb" && token.type !== "adverb" && token.type !== "preposition") {
-            token.type = "adjective";
-            token.role = "attribut du sujet";
-          }
-        }
-      }
+      return result;
     }
     
     // Regrouper les résultats par catégorie grammaticale
@@ -1578,6 +2326,45 @@
       return categories;
     }
     
+    // Analyser la structure de la phrase
+    function analyzeSentenceStructure(analyzedTokens) {
+      // Détecter si la phrase est active ou passive
+      let isPassive = false;
+      let mainVerb = null;
+      let subject = null;
+      let object = null;
+      let agent = null;
+      
+      // Trouver le sujet, le verbe principal et l'objet
+      analyzedTokens.forEach(token => {
+        if (token.isSubject) subject = token;
+        if (token.role === "verbe principal" || token.role === "participe passé du verbe principal") mainVerb = token;
+        if (token.isObject) object = token;
+        if (token.isAgent) agent = token;
+        if (token.role === "auxiliaire (voix passive)") isPassive = true;
+      });
+      
+      // Déterminer le type de phrase
+      let sentenceType = "déclarative";
+      if (analyzedTokens.length > 0 && analyzedTokens[analyzedTokens.length - 1].original === "?") {
+        sentenceType = "interrogative";
+      } else if (analyzedTokens.length > 0 && analyzedTokens[analyzedTokens.length - 1].original === "!") {
+        sentenceType = "exclamative";
+      }
+      
+      // Déterminer le type de construction (active, passive, etc.)
+      let constructionType = isPassive ? "passive" : "active";
+      
+      return {
+        type: sentenceType,
+        construction: constructionType,
+        subject: subject ? subject.original : "non identifié",
+        mainVerb: mainVerb ? mainVerb.original : "non identifié", 
+        object: object ? object.original : (isPassive ? "sujet de la voix passive" : "non identifié"),
+        agent: agent ? agent.original : "non identifié"
+      };
+    }
+    
     // Générer le HTML pour afficher une catégorie grammaticale
     function generateCategoryHTML(category, items) {
       if (!items || items.length === 0) return '';
@@ -1594,14 +2381,16 @@
         let displayText = item.original;
         
         // Ajouter des informations pertinentes selon la catégorie
-        if (category === "verb" && item.infinitif) {
-          displayText = `${item.original}`;
-          if (item.infinitif !== item.original.toLowerCase()) {
-            displayText += ` [${item.infinitif}`;
-            if (item.temps) {
-              displayText += ` (${item.temps})`;
+        if (category === "verb") {
+          if (item.infinitive) {
+            displayText = `${item.original}`;
+            if (item.infinitive !== item.original.toLowerCase()) {
+              displayText += ` [${item.infinitive}`;
+              if (item.subtype && item.subtype !== "infinitif") {
+                displayText += ` (${item.subtype})`;
+              }
+              displayText += `]`;
             }
-            displayText += `]`;
           }
         } 
         else if (item.role) {
@@ -1626,13 +2415,59 @@
         if (token.type === "punctuation") {
           html += token.original;
         } else {
-          const tooltipContent = `${categoryNames[token.type]}${token.subtype ? ` ${token.subtype}` : ''}`;
+          let cssClasses = `word-tag ${token.type} tooltip`;
           
-          html += `<span class="word-tag ${token.type} tooltip">${token.original}<span class="tooltip-text">${tooltipContent}</span></span> `;
+          // Ajouter des classes spéciales pour les sujets et objets
+          if (token.isSubject || token.isPassiveSubject) cssClasses += ' subject';
+          if (token.isObject) cssClasses += ' object';
+          
+          const tooltipContent = `${categoryNames[token.type]}${token.subtype ? ` ${token.subtype}` : ''}${token.role ? `<br>Rôle: ${token.role}` : ''}`;
+          
+          html += `<span class="${cssClasses}">${token.original}<span class="tooltip-text">${tooltipContent}</span></span> `;
         }
       });
       
       return html;
+    }
+    
+    // Générer le HTML pour afficher la structure de la phrase
+    function generateStructureHTML(structure) {
+      return `
+        <div class="sentence-structure">
+          <div class="structure-title">ANALYSE DE STRUCTURE</div>
+          <div class="structure-item">
+            <div class="structure-label">Type:</div>
+            <div class="structure-value">Phrase ${structure.type}</div>
+          </div>
+          <div class="structure-item">
+            <div class="structure-label">Construction:</div>
+            <div class="structure-value">Voix ${structure.construction}</div>
+          </div>
+          <div class="structure-item">
+            <div class="structure-label">Sujet:</div>
+            <div class="structure-value">${structure.subject}</div>
+          </div>
+          <div class="structure-item">
+            <div class="structure-label">Verbe:</div>
+            <div class="structure-value">${structure.mainVerb}</div>
+          </div>
+          ${structure.construction === "passive" ? `
+          <div class="structure-item">
+            <div class="structure-label">Patient:</div>
+            <div class="structure-value">${structure.subject}</div>
+          </div>
+          <div class="structure-item">
+            <div class="structure-label">Agent:</div>
+            <div class="structure-value">${structure.agent !== "non identifié" ? structure.agent : "non spécifié"}</div>
+          </div>
+          ` : `
+          <div class="structure-item">
+            <div class="structure-label">Objet:</div>
+            <div class="structure-value">${structure.object !== "non identifié" ? structure.object : "non spécifié"}</div>
+          </div>
+          `}
+        </div>
+      `;
     }
     
     // Obtenir l'heure actuelle formatée
@@ -1711,6 +2546,9 @@
         // Analyser la grammaire
         const analyzedTokens = analyzeGrammar(tokens);
         
+        // Analyser la structure de la phrase
+        const sentenceStructure = analyzeSentenceStructure(analyzedTokens);
+        
         // Regrouper les résultats par catégorie
         const categorizedResults = categorizeResults(analyzedTokens);
         
@@ -1719,6 +2557,9 @@
         
         // Préparer la réponse
         let response = `Voici l'analyse de votre phrase:<br><br>${analyzedTextHtml}<br><br>`;
+        
+        // Ajouter la structure de la phrase
+        response += generateStructureHTML(sentenceStructure);
         
         // Ajouter les catégories grammaticales
         response += `<div class="category-list">`;
